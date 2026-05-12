@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TaskFlow — チームタスク管理アプリ
 
-## Getting Started
+Next.js (App Router) + Supabase + Vercel で動くリアルタイムチームタスク管理アプリです。
 
-First, run the development server:
+## 機能
+- メール/パスワード認証
+- プロジェクト作成・一覧
+- タスクの追加・編集・削除（担当者・期限・優先度・ステータス）
+- カンバン / リスト表示切り替え
+- チームメンバーを招待リンクで招待
+- Supabase Realtimeによる複数人リアルタイム同期
+- RLS（Row Level Security）で所属プロジェクトのみ閲覧可能
+
+---
+
+## セットアップ手順
+
+### 1. Supabase プロジェクトを作成
+
+1. [https://supabase.com](https://supabase.com) でアカウントを作成し、新規プロジェクトを作成
+2. **SQL Editor** を開き、`supabase/schema.sql` の内容を貼り付けて **Run** を実行
+3. **Authentication > Providers** でメール認証が有効になっていることを確認
+4. **Realtime** を有効化: Dashboard > Database > Replication > `tasks`, `projects` テーブルにチェック
+
+### 2. Supabase の API キーを取得
+
+Dashboard > Settings > API から以下をコピー：
+- `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
+- `anon/public key` → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+### 3. ローカル環境の準備
 
 ```bash
+# リポジトリをクローン or このフォルダに移動
+cd task-app
+
+# 環境変数ファイルを作成
+cp .env.local.example .env.local
+# .env.local を開いてSupabaseのURL/Keyを入力
+
+# 依存パッケージをインストール
+npm install
+
+# 開発サーバーを起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開くと動作確認できます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Vercel にデプロイ
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Vercel CLI を使う場合
+npm i -g vercel
+vercel
 
-## Learn More
+# または GitHub にプッシュして Vercel Dashboard からインポート
+```
 
-To learn more about Next.js, take a look at the following resources:
+**Vercel の環境変数設定（Dashboard > Settings > Environment Variables）：**
+| Key | Value |
+|-----|-------|
+| `NEXT_PUBLIC_SUPABASE_URL` | SupabaseのProject URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabaseのanon key |
+| `NEXT_PUBLIC_SITE_URL` | Vercelのデプロイ先URL（例: https://your-app.vercel.app） |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Supabase側でリダイレクトURLを許可：**
+Authentication > URL Configuration > Redirect URLs に  
+`https://your-app.vercel.app/**` を追加
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## ファイル構成
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/
+│   ├── auth/callback/         # OAuth/メール確認コールバック
+│   ├── invite/[token]/        # 招待リンク受諾ページ
+│   ├── login/                 # ログインページ
+│   ├── signup/                # サインアップページ
+│   └── projects/
+│       ├── layout.tsx         # ダッシュボードヘッダー
+│       ├── page.tsx           # プロジェクト一覧
+│       ├── new/               # プロジェクト作成
+│       └── [projectId]/
+│           ├── page.tsx       # タスクボード（カンバン/リスト）
+│           └── settings/      # メンバー管理・招待
+├── components/
+│   ├── members/InviteSection.tsx
+│   ├── tasks/
+│   │   ├── TaskBoard.tsx      # Realtime込みのメインボード
+│   │   ├── TaskCard.tsx
+│   │   └── TaskFormModal.tsx
+│   └── ui/LogoutButton.tsx
+├── lib/
+│   ├── supabase/
+│   │   ├── client.ts          # ブラウザ用Supabaseクライアント
+│   │   └── server.ts          # サーバー用Supabaseクライアント
+│   └── types.ts               # 型定義
+└── middleware.ts               # 認証ガード
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## スキーマSQL
+
+`supabase/schema.sql` を参照してください。
+
+---
+
+## 技術スタック
+
+| 分類 | 技術 |
+|------|------|
+| フロントエンド | Next.js 16 (App Router) + TypeScript + Tailwind CSS |
+| バックエンド | Supabase (Auth + PostgreSQL + Realtime) |
+| デプロイ | Vercel |
