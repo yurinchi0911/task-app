@@ -8,6 +8,10 @@
     "teamOwnerProTooltip": "チームオーナーのProプランでカバーされています",
     "localeSwitcherJa": "日本語"
   },
+  "metadata": {
+    "title": "TaskFlow — チームのタスク管理",
+    "description": "チームのタスクをリアルタイムで管理します"
+  },
   "auth": {
     "login": "ログイン",
     "signup": "新規登録",
@@ -25,7 +29,8 @@
     "tagline": "チームのタスクをリアルタイムで管理",
     "signupSubtitle": "アカウントを作成して始めましょう",
     "passwordSignupLabel": "パスワード（8文字以上）",
-    "displayNamePlaceholder": "山田 太郎"
+    "displayNamePlaceholder": "山田 太郎",
+    "authCallbackFailed": "サインイン処理で問題が発生しました。ログインから再度お試しください。"
   },
   "projects": {
     "title": "プロジェクト",

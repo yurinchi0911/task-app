@@ -1,18 +1,33 @@
 'use client'
 
+import { Suspense, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginInner />
+    </Suspense>
+  )
+}
+
+function LoginInner() {
   const t = useTranslations('auth')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (searchParams.get('error') === 'auth_callback_failed') {
+      setError(t('authCallbackFailed'))
+    }
+  }, [searchParams, t])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

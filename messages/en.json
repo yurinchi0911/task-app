@@ -8,6 +8,10 @@
     "teamOwnerProTooltip": "You have Pro features through your team owner's subscription",
     "localeSwitcherJa": "Japanese"
   },
+  "metadata": {
+    "title": "TaskFlow — Team Task Management",
+    "description": "Manage your team's tasks in real time"
+  },
   "auth": {
     "login": "Login",
     "signup": "Sign Up",
@@ -25,7 +29,8 @@
     "tagline": "Manage your team's tasks in real time",
     "signupSubtitle": "Create an account to get started",
     "passwordSignupLabel": "Password (minimum 8 characters)",
-    "displayNamePlaceholder": "Jane Doe"
+    "displayNamePlaceholder": "Jane Doe",
+    "authCallbackFailed": "Something went wrong while signing you in. Please try logging in manually."
   },
   "projects": {
     "title": "Projects",
