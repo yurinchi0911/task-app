@@ -2,7 +2,10 @@
   "nav": {
     "brand": "TaskFlow",
     "logout": "Logout",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "feedback": "Feedback",
+    "teamProBadge": "Pro (Team)",
+    "teamOwnerProTooltip": "You have Pro features through your team owner's subscription"
   },
   "auth": {
     "login": "Login",
@@ -34,7 +37,19 @@
     "preview": "Preview",
     "creating": "Creating…",
     "createError": "Failed to create project: ",
-    "back": "← Back to projects"
+    "createUnknownError": "Something went wrong while creating the project.",
+    "back": "← Back to projects",
+    "backToDetail": "← Back to project",
+    "swatches": {
+      "blue": "Blue",
+      "violet": "Violet",
+      "pink": "Pink",
+      "red": "Red",
+      "amber": "Amber",
+      "green": "Green",
+      "cyan": "Cyan",
+      "orange": "Orange"
+    }
   },
   "tasks": {
     "add": "Add Task",
@@ -74,10 +89,17 @@
       "high": "High",
       "urgent": "Urgent"
     },
-    "taskAddError": "Failed to add task: "
+    "taskAddError": "Failed to add task: ",
+    "tree": "Tree",
+    "hideCompleted": "Hide completed",
+    "showCompleted": "Show completed",
+    "parentTask": "Parent task",
+    "parentHint": "(Add as subtask)",
+    "rootTaskOption": "None (root task)"
   },
   "members": {
     "title": "Team Members",
+    "currentMembers": "Current members",
     "invite": "Invite Member",
     "inviteDesc": "Enter an email to generate an invite link",
     "inviteEmail": "Email to invite",
@@ -88,6 +110,9 @@
     "inviteSuccess": "Invite link generated!",
     "copyLink": "Copy link",
     "inviteError": "Failed to create invite: ",
+    "inviteCreateFailed": "Could not create the invite.",
+    "slotLimitLine": "Free plan: members plus pending invites combined, max {slotsMax} (currently {slotsUsed}/{slotsMax}).",
+    "slotLimitProHint": "Upgrade the project owner to Pro for unlimited invites.",
     "roles": {
       "owner": "Owner",
       "admin": "Admin",
@@ -132,6 +157,8 @@
   "limit": {
     "projectLimit": "Free plan is limited to 1 project. Upgrade to Pro for unlimited projects.",
     "memberLimit": "Free plan is limited to 3 members. Upgrade to Pro for unlimited members.",
-    "upgrade": "Upgrade to Pro"
+    "upgrade": "Upgrade to Pro",
+    "freeProjectBanner": "Free: 1 project max · Add more with Pro",
+    "addProjectsWithPro": "Add projects with Pro"
   }
 }

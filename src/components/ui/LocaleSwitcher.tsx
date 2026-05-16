@@ -1,5 +1,6 @@
 'use client'
 
+import { setUserLocale } from '@/app/actions/locale'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -10,12 +11,10 @@ export default function LocaleSwitcher({ current }: { current: string }) {
   async function switchLocale(locale: string) {
     if (locale === current || loading) return
     setLoading(true)
-    await fetch('/api/locale', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ locale }),
-    })
-    router.refresh()
+    const { ok } = await setUserLocale(locale)
+    if (ok) {
+      router.refresh()
+    }
     setLoading(false)
   }
 

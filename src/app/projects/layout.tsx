@@ -21,7 +21,8 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
   const { isPro, isOwnerPro, coveredByOwner } = await getProAccess(user.id)
 
   const locale = await getLocale()
-  const t = await getTranslations('nav')
+  const tNav = await getTranslations('nav')
+  const tPricing = await getTranslations('pricing')
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -33,7 +34,7 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            {t('brand')}
+            {tNav('brand')}
           </Link>
           <div className="flex items-center gap-3">
             {/* Pro バッジ or アップグレードリンク */}
@@ -42,22 +43,22 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
                 href="/pricing"
                 className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-white font-medium hover:opacity-90 transition-opacity"
               >
-                ⚡ Upgrade to Pro
+                ⚡ {tPricing('upgrade')}
               </Link>
             )}
             {isOwnerPro && (
               <Link
                 href="/pricing"
                 className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 text-white font-medium"
-                title="サブスクリプション管理"
+                title={tPricing('manage')}
               >
                 ✦ Pro
               </Link>
             )}
             {coveredByOwner && !isOwnerPro && (
               <span className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium"
-                title="チームオーナーのProプランでカバーされています">
-                ✦ Pro（チーム）
+                title={tNav('teamOwnerProTooltip')}>
+                ✦ {tNav('teamProBadge')}
               </span>
             )}
 
@@ -70,7 +71,7 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
-                フィードバック
+                {tNav('feedback')}
               </Link>
             )}
 
@@ -78,7 +79,7 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
             <span className="text-sm text-slate-600 hidden sm:block">
               {profile?.name || profile?.email || user.email}
             </span>
-            <LogoutButton label={t('logout')} />
+            <LogoutButton label={tNav('logout')} />
           </div>
         </div>
       </header>

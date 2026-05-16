@@ -1,24 +1,26 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import type { Task, TaskStatus } from '@/lib/types'
 
-const priorityConfig = {
-  low: { label: '低', class: 'text-slate-500 bg-slate-100', dot: 'bg-slate-400' },
-  medium: { label: '中', class: 'text-blue-600 bg-blue-100', dot: 'bg-blue-400' },
-  high: { label: '高', class: 'text-amber-600 bg-amber-100', dot: 'bg-amber-400' },
-  urgent: { label: '緊急', class: 'text-red-600 bg-red-100', dot: 'bg-red-500' },
+const priorityDot: Record<Task['priority'], string> = {
+  low: 'bg-slate-400',
+  medium: 'bg-blue-400',
+  high: 'bg-amber-400',
+  urgent: 'bg-red-500',
+}
+
+const priorityClass: Record<Task['priority'], string> = {
+  low: 'text-slate-500 bg-slate-100',
+  medium: 'text-blue-600 bg-blue-100',
+  high: 'text-amber-600 bg-amber-100',
+  urgent: 'text-red-600 bg-red-100',
 }
 
 const nextStatus: Record<TaskStatus, TaskStatus | null> = {
   todo: 'in_progress',
   in_progress: 'done',
   done: null,
-}
-
-const nextStatusLabel: Record<TaskStatus, string> = {
-  todo: '→ 進行中へ',
-  in_progress: '→ 完了へ',
-  done: '✓ 完了',
 }
 
 interface Props {
@@ -30,7 +32,12 @@ interface Props {
 
 
 export default function TaskCard({ task, onEdit, onDelete, onStatusChange }: Props) {
-  const p = priorityConfig[task.priority]
+  const t = useTranslations('tasks')
+  const locale = useLocale()
+  const dateLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
+
+  const pClass = priorityClass[task.priority]
+  const dotClass = priorityDot[task.priority]
   const isOverdue = task.due_date && task.status !== 'done' && new Date(task.due_date) < new Date()
 
   return (
@@ -58,9 +65,9 @@ export default function TaskCard({ task, onEdit, onDelete, onStatusChange }: Pro
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5 mt-2">
-        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${p.class}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${p.dot}`}></span>
-          {p.label}
+        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${pClass}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`}></span>
+          {t(`priorityLabel.${task.priority}`)}
         </span>
 
         {task.profiles?.name && (
@@ -71,7 +78,7 @@ export default function TaskCard({ task, onEdit, onDelete, onStatusChange }: Pro
 
         {task.due_date && (
           <span className={`text-xs px-1.5 py-0.5 rounded ${isOverdue ? 'text-red-600 bg-red-100' : 'text-slate-400 bg-slate-100'}`}>
-            {new Date(task.due_date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}
+            {new Date(task.due_date).toLocaleDateString(dateLocale, { month: 'numeric', day: 'numeric' })}
           </span>
         )}
       </div>
@@ -87,11 +94,11 @@ export default function TaskCard({ task, onEdit, onDelete, onStatusChange }: Pro
           onClick={() => onStatusChange(task.id, nextStatus[task.status] as TaskStatus)}
           className="mt-2 w-full text-xs text-slate-400 hover:text-blue-600 hover:bg-blue-50 py-1 rounded transition-colors"
         >
-          {nextStatusLabel[task.status]}
+          {t(`nextStatus.${task.status}`)}
         </button>
       ) : (
         <div className="mt-2 w-full text-xs text-emerald-500 text-center py-1">
-          {nextStatusLabel[task.status]}
+          {t(`nextStatus.${task.status}`)}
         </div>
       )}
     </div>

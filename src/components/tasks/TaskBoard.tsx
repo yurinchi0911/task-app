@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Task, TaskStatus, TaskPriority, ProjectMember } from '@/lib/types'
@@ -7,10 +8,10 @@ import TaskCard from './TaskCard'
 import TaskFormModal from './TaskFormModal'
 import TaskTreeView from './TaskTreeView'
 
-const STATUS_COLUMNS: { key: TaskStatus; label: string; color: string }[] = [
-  { key: 'todo', label: '未着手', color: 'bg-slate-100' },
-  { key: 'in_progress', label: '進行中', color: 'bg-blue-50' },
-  { key: 'done', label: '完了', color: 'bg-emerald-50' },
+const STATUS_COLUMNS: { key: TaskStatus; color: string }[] = [
+  { key: 'todo', color: 'bg-slate-100' },
+  { key: 'in_progress', color: 'bg-blue-50' },
+  { key: 'done', color: 'bg-emerald-50' },
 ]
 
 interface FormValues {
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export default function TaskBoard({ projectId, initialTasks, members, featuresPro }: Props) {
+  const t = useTranslations('tasks')
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [view, setView] = useState<'kanban' | 'list' | 'tree'>('kanban')
   const [hideDone, setHideDone] = useState(false)
@@ -95,14 +97,14 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
         .select('*')
         .single() as { data: Task | null; error: { message: string } | null }
       if (error) {
-        alert('タスク追加エラー: ' + error.message)
+        alert(t('taskAddError') + error.message)
       } else if (data) {
         setTasks(prev => [...prev, data])
       }
     }
     setShowModal(false)
     setEditingTask(null)
-  }, [editingTask, projectId, supabase])
+  }, [editingTask, projectId, supabase, t])
 
   const handleDeleteTask = useCallback(async (taskId: string) => {
     const { error } = await supabase.from('tasks').delete().eq('id', taskId)
@@ -131,7 +133,7 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
             </svg>
-            カンバン
+            {t('kanban')}
           </button>
           <button
             onClick={() => setView('list')}
@@ -142,7 +144,7 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
-            リスト
+            {t('list')}
           </button>
           {featuresPro && (
           <button
@@ -154,7 +156,7 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h3m0 0v5m0-5h3m6-3v3m0 0h3M7 11v5m0 0h3m-3 0v2" />
             </svg>
-            ツリー
+            {t('tree')}
           </button>
           )}
         </div>
@@ -171,9 +173,9 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={hideDone ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" : "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"} />
               </svg>
-              {hideDone ? '完了を表示' : '完了を非表示'}
+              {hideDone ? t('showCompleted') : t('hideCompleted')}
             </button>
-            <span className="text-sm text-slate-500">{visibleTasks.length} タスク</span>
+            <span className="text-sm text-slate-500">{t('count', { count: visibleTasks.length })}</span>
             <button
               onClick={openCreate}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
@@ -181,7 +183,7 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              タスクを追加
+              {t('add')}
             </button>
           </div>
         )}
@@ -195,7 +197,7 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
             return (
               <div key={col.key} className={`rounded-xl p-3 ${col.color} min-h-[200px]`}>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-slate-700 text-sm">{col.label}</h3>
+                  <h3 className="font-semibold text-slate-700 text-sm">{t(`statusLabel.${col.key}`)}</h3>
                   <span className="text-xs bg-white/70 text-slate-500 px-2 py-0.5 rounded-full font-medium">
                     {colTasks.length}
                   </span>
@@ -217,7 +219,7 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    追加
+                    {t('addColumn')}
                   </button>
                 </div>
               </div>
@@ -231,17 +233,17 @@ export default function TaskBoard({ projectId, initialTasks, members, featuresPr
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
           {visibleTasks.length === 0 ? (
             <div className="text-center py-16 text-slate-400">
-              <p className="text-sm">タスクがありません。追加してみましょう！</p>
+              <p className="text-sm">{t('empty')}</p>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium">タスク名</th>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium hidden sm:table-cell">担当者</th>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium hidden md:table-cell">期限</th>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium">優先度</th>
-                  <th className="text-left px-4 py-3 text-slate-600 font-medium">ステータス</th>
+                  <th className="text-left px-4 py-3 text-slate-600 font-medium">{t('title')}</th>
+                  <th className="text-left px-4 py-3 text-slate-600 font-medium hidden sm:table-cell">{t('assignee')}</th>
+                  <th className="text-left px-4 py-3 text-slate-600 font-medium hidden md:table-cell">{t('dueDate')}</th>
+                  <th className="text-left px-4 py-3 text-slate-600 font-medium">{t('priority')}</th>
+                  <th className="text-left px-4 py-3 text-slate-600 font-medium">{t('status')}</th>
                   <th className="w-10"></th>
                 </tr>
               </thead>
@@ -291,19 +293,21 @@ function ListRow({ task, onEdit, onDelete, onStatusChange }: {
   onDelete: (id: string) => void
   onStatusChange: (id: string, s: TaskStatus) => void
 }) {
-  const priorityConfig = {
-    low: { label: '低', class: 'text-slate-500 bg-slate-100' },
-    medium: { label: '中', class: 'text-blue-600 bg-blue-100' },
-    high: { label: '高', class: 'text-amber-600 bg-amber-100' },
-    urgent: { label: '緊急', class: 'text-red-600 bg-red-100' },
+  const t = useTranslations('tasks')
+  const locale = useLocale()
+  const dateLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
+
+  const priorityClass: Record<TaskPriority, string> = {
+    low: 'text-slate-500 bg-slate-100',
+    medium: 'text-blue-600 bg-blue-100',
+    high: 'text-amber-600 bg-amber-100',
+    urgent: 'text-red-600 bg-red-100',
   }
-  const statusConfig = {
-    todo: { label: '未着手', class: 'text-slate-600 bg-slate-100' },
-    in_progress: { label: '進行中', class: 'text-blue-700 bg-blue-100' },
-    done: { label: '完了', class: 'text-emerald-700 bg-emerald-100' },
+  const statusClass: Record<TaskStatus, string> = {
+    todo: 'text-slate-600 bg-slate-100',
+    in_progress: 'text-blue-700 bg-blue-100',
+    done: 'text-emerald-700 bg-emerald-100',
   }
-  const p = priorityConfig[task.priority]
-  const s = statusConfig[task.status]
 
   const nextStatus: Record<TaskStatus, TaskStatus> = {
     todo: 'in_progress',
@@ -327,19 +331,19 @@ function ListRow({ task, onEdit, onDelete, onStatusChange }: {
         {task.profiles?.name || task.profiles?.email || '—'}
       </td>
       <td className="px-4 py-3 text-slate-500 hidden md:table-cell">
-        {task.due_date ? new Date(task.due_date).toLocaleDateString('ja-JP') : '—'}
+        {task.due_date ? new Date(task.due_date).toLocaleDateString(dateLocale) : '—'}
       </td>
       <td className="px-4 py-3">
-        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${p.class}`}>
-          {p.label}
+        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${priorityClass[task.priority]}`}>
+          {t(`priorityLabel.${task.priority}`)}
         </span>
       </td>
       <td className="px-4 py-3">
         <button
           onClick={() => onStatusChange(task.id, nextStatus[task.status])}
-          className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${s.class}`}
+          className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${statusClass[task.status]}`}
         >
-          {s.label}
+          {t(`statusLabel.${task.status}`)}
         </button>
       </td>
       <td className="px-4 py-3">

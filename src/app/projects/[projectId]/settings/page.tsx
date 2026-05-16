@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import InviteSection from '@/components/members/InviteSection'
 import type { Project, ProjectMember, ProjectInvite } from '@/lib/types'
 import { FREE_PLAN_LIMITS } from '@/lib/stripe'
@@ -13,6 +14,8 @@ interface Props {
 export default async function ProjectSettingsPage({ params }: Props) {
   const { projectId } = await params
   const supabase = await createClient()
+  const tProjects = await getTranslations('projects')
+  const tMembers = await getTranslations('members')
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
@@ -60,15 +63,15 @@ export default async function ProjectSettingsPage({ params }: Props) {
           href={`/projects/${projectId}`}
           className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1 mb-4"
         >
-          ← プロジェクトに戻る
+          {tProjects('backToDetail')}
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">メンバー管理</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{tMembers('title')}</h1>
         <p className="text-slate-500 text-sm mt-1">{project.name}</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm mb-6">
         <div className="px-5 py-4 border-b border-slate-100">
-          <h2 className="font-semibold text-slate-800">現在のメンバー</h2>
+          <h2 className="font-semibold text-slate-800">{tMembers('currentMembers')}</h2>
         </div>
         <ul className="divide-y divide-slate-100">
           {(members ?? []).map(m => (
@@ -86,7 +89,7 @@ export default async function ProjectSettingsPage({ params }: Props) {
                 m.role === 'admin' ? 'bg-blue-100 text-blue-700' :
                 'bg-slate-100 text-slate-600'
               }`}>
-                {m.role === 'owner' ? 'オーナー' : m.role === 'admin' ? '管理者' : 'メンバー'}
+                {tMembers(`roles.${m.role}`)}
               </span>
             </li>
           ))}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import type { Task, TaskStatus, TaskPriority, ProjectMember } from '@/lib/types'
 
@@ -33,6 +34,7 @@ export default function TaskFormModal({
   onSave,
   onClose,
 }: Props) {
+  const t = useTranslations('tasks')
   const [title, setTitle] = useState(task?.title ?? '')
   const [assigneeId, setAssigneeId] = useState<string>(task?.assignee_id ?? '')
   const [dueDate, setDueDate] = useState<string>(task?.due_date ?? '')
@@ -80,7 +82,7 @@ export default function TaskFormModal({
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 z-10 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-slate-900">
-            {task ? 'タスクを編集' : 'タスクを追加'}
+            {task ? t('editTask') : t('addTask')}
           </h2>
           <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,53 +93,53 @@ export default function TaskFormModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">タスク名 *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('title')} *</label>
             <input
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
               required
-              placeholder="タスクのタイトルを入力"
+              placeholder={t('titlePlaceholder')}
               className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">優先度</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('priority')}</label>
               <select
                 value={priority}
                 onChange={e => setPriority(e.target.value as TaskPriority)}
                 className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               >
-                <option value="low">低</option>
-                <option value="medium">中</option>
-                <option value="high">高</option>
-                <option value="urgent">緊急</option>
+                <option value="low">{t('priorityLabel.low')}</option>
+                <option value="medium">{t('priorityLabel.medium')}</option>
+                <option value="high">{t('priorityLabel.high')}</option>
+                <option value="urgent">{t('priorityLabel.urgent')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">ステータス</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('status')}</label>
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value as TaskStatus)}
                 className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               >
-                <option value="todo">未着手</option>
-                <option value="in_progress">進行中</option>
-                <option value="done">完了</option>
+                <option value="todo">{t('statusLabel.todo')}</option>
+                <option value="in_progress">{t('statusLabel.in_progress')}</option>
+                <option value="done">{t('statusLabel.done')}</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">担当者</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('assignee')}</label>
             <select
               value={assigneeId}
               onChange={e => setAssigneeId(e.target.value)}
               className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
             >
-              <option value="">未割り当て</option>
+              <option value="">{t('unassigned')}</option>
               {members.map(m => (
                 <option key={m.user_id} value={m.user_id}>
                   {m.profiles?.name || m.profiles?.email || m.user_id}
@@ -147,7 +149,7 @@ export default function TaskFormModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">期限</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('dueDate')}</label>
             <input
               type="date"
               value={dueDate}
@@ -159,15 +161,15 @@ export default function TaskFormModal({
           {allowParentTasks && parentCandidates.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                親タスク
-                <span className="ml-1 text-xs text-slate-400 font-normal">（サブタスクとして追加）</span>
+                {t('parentTask')}
+                <span className="ml-1 text-xs text-slate-400 font-normal">{t('parentHint')}</span>
               </label>
               <select
                 value={parentTaskId}
                 onChange={e => setParentTaskId(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
               >
-                <option value="">なし（ルートタスク）</option>
+                <option value="">{t('rootTaskOption')}</option>
                 {parentCandidates.map(t => (
                   <option key={t.id} value={t.id}>
                     {t.title}
@@ -178,11 +180,11 @@ export default function TaskFormModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">メモ</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('notes')}</label>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="タスクのメモや詳細を入力（任意）"
+              placeholder={t('notesPlaceholder')}
               rows={3}
               className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 resize-none"
             />
@@ -194,14 +196,14 @@ export default function TaskFormModal({
               onClick={onClose}
               className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
             >
-              キャンセル
+              {t('cancel')}
             </button>
             <button
               type="submit"
               disabled={loading || !title.trim()}
               className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold transition-colors"
             >
-              {loading ? '保存中…' : task ? '更新する' : '追加する'}
+              {loading ? t('saving') : task ? t('update') : t('addTask')}
             </button>
           </div>
         </form>

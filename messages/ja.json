@@ -2,7 +2,10 @@
   "nav": {
     "brand": "TaskFlow",
     "logout": "ログアウト",
-    "pricing": "料金プラン"
+    "pricing": "料金プラン",
+    "feedback": "フィードバック",
+    "teamProBadge": "Pro（チーム）",
+    "teamOwnerProTooltip": "チームオーナーのProプランでカバーされています"
   },
   "auth": {
     "login": "ログイン",
@@ -34,7 +37,19 @@
     "preview": "プレビュー",
     "creating": "作成中…",
     "createError": "プロジェクトの作成に失敗しました: ",
-    "back": "← プロジェクト一覧に戻る"
+    "createUnknownError": "プロジェクトの作成に失敗しました。",
+    "back": "← プロジェクト一覧に戻る",
+    "backToDetail": "← プロジェクトに戻る",
+    "swatches": {
+      "blue": "ブルー",
+      "violet": "バイオレット",
+      "pink": "ピンク",
+      "red": "レッド",
+      "amber": "アンバー",
+      "green": "グリーン",
+      "cyan": "シアン",
+      "orange": "オレンジ"
+    }
   },
   "tasks": {
     "add": "タスクを追加",
@@ -74,10 +89,17 @@
       "high": "高",
       "urgent": "緊急"
     },
-    "taskAddError": "タスク追加エラー: "
+    "taskAddError": "タスク追加エラー: ",
+    "tree": "ツリー",
+    "hideCompleted": "完了を非表示",
+    "showCompleted": "完了を表示",
+    "parentTask": "親タスク",
+    "parentHint": "（サブタスクとして追加）",
+    "rootTaskOption": "なし（ルートタスク）"
   },
   "members": {
     "title": "メンバー管理",
+    "currentMembers": "現在のメンバー",
     "invite": "メンバーを招待",
     "inviteDesc": "メールアドレスを入力すると招待リンクが生成されます",
     "inviteEmail": "招待するメールアドレス",
@@ -88,6 +110,9 @@
     "inviteSuccess": "招待リンクを生成しました！",
     "copyLink": "コピーする",
     "inviteError": "招待の作成に失敗しました: ",
+    "inviteCreateFailed": "招待の作成に失敗しました。",
+    "slotLimitLine": "Freeプランではメンバーと保留中の招待を合わせて最大{slotsMax}名までです（現在 {slotsUsed}/{slotsMax}）。",
+    "slotLimitProHint": "プロジェクトのオーナーが Pro にすると無制限になります。",
     "roles": {
       "owner": "オーナー",
       "admin": "管理者",
@@ -132,6 +157,8 @@
   "limit": {
     "projectLimit": "Freeプランはプロジェクト1つまでです。無制限にするにはProにアップグレードしてください。",
     "memberLimit": "Freeプランはメンバー3人までです。無制限にするにはProにアップグレードしてください。",
-    "upgrade": "Proにアップグレード"
+    "upgrade": "Proにアップグレード",
+    "freeProjectBanner": "Free は 1 プロジェクトまで · Pro で追加",
+    "addProjectsWithPro": "Pro でプロジェクトを追加"
   }
 }
