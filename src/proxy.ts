@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getSafeRedirectPath } from '@/lib/safe-redirect'
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -34,9 +35,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // 認証済みユーザーをログイン・サインアップから退出
+  // 認証済みユーザーをログイン・サインアップへ来たときは一覧へ（redirect があれば優先）
   if (user && (pathname === '/login' || pathname === '/signup')) {
-    return NextResponse.redirect(new URL('/projects', request.url))
+    const dest = getSafeRedirectPath(request.nextUrl.searchParams.get('redirect'))
+    return NextResponse.redirect(new URL(dest ?? '/projects', request.url))
   }
 
   return supabaseResponse
