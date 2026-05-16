@@ -1,6 +1,6 @@
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getRequestUiLocale } from '@/lib/request-locale'
 import { getStripe } from '@/lib/stripe'
 
 export async function POST() {
@@ -23,8 +23,7 @@ export async function POST() {
   }
 
   const stripe = getStripe()
-  const jar = await cookies()
-  const uiLocale = jar.get('locale')?.value === 'ja' ? 'ja' : 'en'
+  const uiLocale = await getRequestUiLocale()
 
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,

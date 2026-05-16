@@ -1,6 +1,6 @@
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getRequestUiLocale } from '@/lib/request-locale'
 import { getStripe, STRIPE_PRO_PRICE_ID } from '@/lib/stripe'
 
 export async function POST() {
@@ -32,8 +32,7 @@ export async function POST() {
       .eq('id', user.id)
   }
 
-  const jar = await cookies()
-  const uiLocale = jar.get('locale')?.value === 'ja' ? 'ja' : 'en'
+  const uiLocale = await getRequestUiLocale()
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
