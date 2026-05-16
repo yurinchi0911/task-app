@@ -196,5 +196,34 @@
     "upgrade": "Proにアップグレード",
     "freeProjectBanner": "Free は 1 プロジェクトまで · Pro で追加",
     "addProjectsWithPro": "Pro でプロジェクトを追加"
+  },
+  "feedback": {
+    "pageTitle": "フィードバック",
+    "proBadge": "✦ Pro限定",
+    "subtitle": "改善のためのご意見をお聞かせください",
+    "formTitle": "新しいフィードバックを送る",
+    "successBanner": "フィードバックを送信しました。ありがとうございます！",
+    "categoryLabel": "カテゴリ",
+    "ratingLabel": "評価",
+    "ratingOutOf": "{rating} / 5",
+    "contentLabel": "フィードバック内容",
+    "requiredMark": "*",
+    "contentPlaceholder": "ご意見・ご要望・バグ報告などをご自由にお書きください",
+    "submitting": "送信中…",
+    "submit": "フィードバックを送信",
+    "historyTitle": "過去のフィードバック",
+    "fallbackSubmitFailed": "送信に失敗しました",
+    "category": {
+      "general": "一般的なフィードバック",
+      "bug": "バグ報告",
+      "feature": "機能リクエスト",
+      "ux": "UI/UX改善提案",
+      "other": "その他"
+    },
+    "api": {
+      "authRequired": "認証が必要です",
+      "proRequired": "Proプランのみ利用できます",
+      "contentRequired": "内容を入力してください"
+    }
   }
 }

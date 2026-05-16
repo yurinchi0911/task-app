@@ -1,25 +1,28 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { getTranslations } from 'next-intl/server'
 import { getProAccess } from '@/lib/pro'
 
 export async function POST(req: Request) {
+  const t = await getTranslations('feedback')
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
+    return NextResponse.json({ error: t('api.authRequired') }, { status: 401 })
   }
 
   const { isPro } = await getProAccess(user.id)
   if (!isPro) {
-    return NextResponse.json({ error: 'Proプランのみ利用できます' }, { status: 403 })
+    return NextResponse.json({ error: t('api.proRequired') }, { status: 403 })
   }
 
   const body = await req.json()
   const { category, content, rating } = body
 
   if (!content?.trim()) {
-    return NextResponse.json({ error: '内容を入力してください' }, { status: 400 })
+    return NextResponse.json({ error: t('api.contentRequired') }, { status: 400 })
   }
 
   const { data, error } = await supabase

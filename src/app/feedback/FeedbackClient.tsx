@@ -1,5 +1,6 @@
 'use client'
 
+import { useLocale, useTranslations } from 'next-intl'
 import { useState } from 'react'
 import type { Feedback } from '@/lib/types'
 import Link from 'next/link'
@@ -8,15 +9,13 @@ interface Props {
   feedbacks: Feedback[]
 }
 
-const CATEGORIES = [
-  { value: 'general', label: '一般的なフィードバック' },
-  { value: 'bug', label: 'バグ報告' },
-  { value: 'feature', label: '機能リクエスト' },
-  { value: 'ux', label: 'UI/UX改善提案' },
-  { value: 'other', label: 'その他' },
-]
+const CATEGORY_KEYS = ['general', 'bug', 'feature', 'ux', 'other'] as const
 
 export default function FeedbackClient({ feedbacks: initialFeedbacks }: Props) {
+  const t = useTranslations('feedback')
+  const locale = useLocale()
+  const dateLocaleTag = locale === 'ja' ? 'ja-JP' : 'en-US'
+
   const [feedbacks, setFeedbacks] = useState<Feedback[]>(initialFeedbacks)
   const [category, setCategory] = useState('general')
   const [content, setContent] = useState('')
@@ -40,7 +39,7 @@ export default function FeedbackClient({ feedbacks: initialFeedbacks }: Props) {
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || '送信に失敗しました')
+        throw new Error(typeof data?.error === 'string' ? data.error : t('fallbackSubmitFailed'))
       }
 
       const newFeedback = await res.json()
@@ -51,13 +50,14 @@ export default function FeedbackClient({ feedbacks: initialFeedbacks }: Props) {
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : '送信に失敗しました')
+      setError(err instanceof Error ? err.message : t('fallbackSubmitFailed'))
     } finally {
       setLoading(false)
     }
   }
 
-  const categoryLabel = (cat: string) => CATEGORIES.find(c => c.value === cat)?.label ?? cat
+  const categoryLabel = (cat: string) =>
+    CATEGORY_KEYS.includes(cat as (typeof CATEGORY_KEYS)[number]) ? t(`category.${cat}`) : cat
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -70,50 +70,48 @@ export default function FeedbackClient({ feedbacks: initialFeedbacks }: Props) {
         </Link>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900">フィードバック</h1>
+            <h1 className="text-xl font-bold text-slate-900">{t('pageTitle')}</h1>
             <span className="text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 text-white font-medium">
-              ✦ Pro限定
+              {t('proBadge')}
             </span>
           </div>
-          <p className="text-sm text-slate-500 mt-0.5">改善のためのご意見をお聞かせください</p>
+          <p className="text-sm text-slate-500 mt-0.5">{t('subtitle')}</p>
         </div>
       </div>
 
       {/* フォーム */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
-        <h2 className="text-base font-semibold text-slate-800 mb-4">新しいフィードバックを送る</h2>
+        <h2 className="text-base font-semibold text-slate-800 mb-4">{t('formTitle')}</h2>
 
         {success && (
           <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2 text-emerald-700 text-sm">
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            フィードバックを送信しました。ありがとうございます！
+            {t('successBanner')}
           </div>
         )}
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            {error}
-          </div>
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">カテゴリ</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('categoryLabel')}</label>
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
               className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
             >
-              {CATEGORIES.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
+              {CATEGORY_KEYS.map(key => (
+                <option key={key} value={key}>{t(`category.${key}`)}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">評価</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('ratingLabel')}</label>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map(star => (
                 <button
@@ -127,16 +125,18 @@ export default function FeedbackClient({ feedbacks: initialFeedbacks }: Props) {
                   ★
                 </button>
               ))}
-              <span className="ml-2 text-sm text-slate-500">{rating} / 5</span>
+              <span className="ml-2 text-sm text-slate-500">{t('ratingOutOf', { rating })}</span>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">フィードバック内容 *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              {t('contentLabel')} <span className="text-red-500">{t('requiredMark')}</span>
+            </label>
             <textarea
               value={content}
               onChange={e => setContent(e.target.value)}
-              placeholder="ご意見・ご要望・バグ報告などをご自由にお書きください"
+              placeholder={t('contentPlaceholder')}
               rows={5}
               required
               className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 resize-none"
@@ -154,14 +154,14 @@ export default function FeedbackClient({ feedbacks: initialFeedbacks }: Props) {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                送信中…
+                {t('submitting')}
               </>
             ) : (
               <>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
-                フィードバックを送信
+                {t('submit')}
               </>
             )}
           </button>
@@ -171,7 +171,7 @@ export default function FeedbackClient({ feedbacks: initialFeedbacks }: Props) {
       {/* 過去のフィードバック */}
       {feedbacks.length > 0 && (
         <div>
-          <h2 className="text-base font-semibold text-slate-800 mb-3">過去のフィードバック</h2>
+          <h2 className="text-base font-semibold text-slate-800 mb-3">{t('historyTitle')}</h2>
           <div className="space-y-3">
             {feedbacks.map(fb => (
               <div key={fb.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
@@ -187,7 +187,7 @@ export default function FeedbackClient({ feedbacks: initialFeedbacks }: Props) {
                     )}
                   </div>
                   <span className="text-xs text-slate-400 flex-shrink-0">
-                    {new Date(fb.created_at).toLocaleDateString('ja-JP')}
+                    {new Date(fb.created_at).toLocaleDateString(dateLocaleTag)}
                   </span>
                 </div>
                 <p className="text-sm text-slate-700 whitespace-pre-wrap">{fb.content}</p>

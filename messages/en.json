@@ -196,5 +196,34 @@
     "upgrade": "Upgrade to Pro",
     "freeProjectBanner": "Free: 1 project max · Add more with Pro",
     "addProjectsWithPro": "Add projects with Pro"
+  },
+  "feedback": {
+    "pageTitle": "Feedback",
+    "proBadge": "✦ Pro only",
+    "subtitle": "Share your suggestions to help us improve",
+    "formTitle": "Send new feedback",
+    "successBanner": "Thanks — your feedback was sent.",
+    "categoryLabel": "Category",
+    "ratingLabel": "Rating",
+    "ratingOutOf": "{rating} / 5",
+    "contentLabel": "Feedback content",
+    "requiredMark": "*",
+    "contentPlaceholder": "Thoughts, ideas, bugs, or anything you'd like us to know",
+    "submitting": "Sending…",
+    "submit": "Send feedback",
+    "historyTitle": "Past feedback",
+    "fallbackSubmitFailed": "Could not send your feedback.",
+    "category": {
+      "general": "General feedback",
+      "bug": "Bug report",
+      "feature": "Feature request",
+      "ux": "UI / UX suggestion",
+      "other": "Other"
+    },
+    "api": {
+      "authRequired": "Authentication required.",
+      "proRequired": "This feature requires a Pro subscription.",
+      "contentRequired": "Please enter feedback content."
+    }
   }
 }
