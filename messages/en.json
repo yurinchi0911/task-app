@@ -109,8 +109,10 @@
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
-    "subtitle": "Start free. Upgrade when your team grows.",
+    "subtitle": "Start free. One owner pays, the whole team gets Pro.",
     "monthly": "/ month",
+    "teamBadge": "Team Plan",
+    "teamNote": "When the project owner upgrades to Pro, every invited member gets access to all Pro features — no extra charges.",
     "free": {
       "name": "Free",
       "price": "$0",
@@ -118,10 +120,11 @@
     },
     "pro": {
       "name": "Pro",
-      "price": "$9",
-      "features": ["Unlimited projects", "Unlimited members", "Unlimited tasks", "Kanban & list view", "Priority support"]
+      "price": "$19",
+      "features": ["Unlimited projects", "Unlimited members", "Tree view & daily standup", "Feedback tool", "All team members get Pro features", "Priority support"]
     },
     "current": "Current Plan",
+    "coveredByOwner": "✦ Covered by your team owner's Pro plan",
     "upgrade": "Upgrade to Pro",
     "manage": "Manage Subscription",
     "upgrading": "Redirecting…"

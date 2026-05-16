@@ -7,10 +7,12 @@ import { useTranslations } from 'next-intl'
 
 interface Props {
   isPro: boolean
+  isOwnerPro: boolean
+  coveredByOwner: boolean
   isLoggedIn: boolean
 }
 
-export default function PricingClient({ isPro, isLoggedIn }: Props) {
+export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLoggedIn }: Props) {
   const t = useTranslations('pricing')
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -38,7 +40,10 @@ export default function PricingClient({ isPro, isLoggedIn }: Props) {
   const proPlan = {
     name: t('pro.name'),
     price: t('pro.price'),
-    features: [t('pro.features.0'), t('pro.features.1'), t('pro.features.2'), t('pro.features.3'), t('pro.features.4')],
+    features: [
+      t('pro.features.0'), t('pro.features.1'), t('pro.features.2'),
+      t('pro.features.3'), t('pro.features.4'), t('pro.features.5'),
+    ],
   }
 
   return (
@@ -52,8 +57,23 @@ export default function PricingClient({ isPro, isLoggedIn }: Props) {
           <p className="text-slate-400 text-lg">{t('subtitle')}</p>
         </div>
 
+        {/* チームプラン説明バナー */}
+        <div className="max-w-3xl mx-auto mb-8">
+          <div className="bg-gradient-to-r from-blue-600/20 to-violet-600/20 border border-blue-500/30 rounded-2xl px-6 py-4 flex items-start gap-3">
+            <div className="mt-0.5 w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+              <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-blue-300 font-semibold text-sm mb-0.5">{t('teamBadge')}</p>
+              <p className="text-slate-300 text-sm leading-relaxed">{t('teamNote')}</p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          {/* Free Plan */}
+          {/* ── Free Plan ── */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-white">{freePlan.name}</h2>
@@ -77,46 +97,92 @@ export default function PricingClient({ isPro, isLoggedIn }: Props) {
             </div>
           </div>
 
-          {/* Pro Plan */}
-          <div className="bg-blue-600 rounded-2xl p-8 relative overflow-hidden">
-            <div className="absolute top-4 right-4 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full font-medium">
-              Popular
+          {/* ── Pro Plan ── */}
+          <div className="bg-gradient-to-br from-blue-600 to-violet-600 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent pointer-events-none" />
+
+            <div className="absolute top-4 right-4 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full font-medium backdrop-blur-sm">
+              ✦ Popular
             </div>
-            <div className="mb-6">
+
+            <div className="mb-6 relative">
               <h2 className="text-xl font-bold text-white">{proPlan.name}</h2>
-              <div className="mt-3">
+              <div className="mt-3 flex items-end gap-1">
                 <span className="text-4xl font-bold text-white">{proPlan.price}</span>
-                <span className="text-blue-200 ml-1">{t('monthly')}</span>
+                <span className="text-blue-200 mb-1">{t('monthly')}</span>
               </div>
+              {/* 1人あたり換算 */}
+              <p className="text-blue-200 text-xs mt-1 opacity-80">3人チームなら 1人あたり約 $6/月</p>
             </div>
-            <ul className="space-y-3 mb-8">
+
+            <ul className="space-y-3 mb-8 relative">
               {proPlan.features.map((f, i) => (
-                <li key={i} className="flex items-center gap-2 text-white text-sm">
-                  <svg className="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li key={i} className={`flex items-center gap-2 text-sm ${
+                  i === 4 ? 'text-yellow-200 font-semibold' : 'text-white'
+                }`}>
+                  <svg className="w-4 h-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   {f}
                 </li>
               ))}
             </ul>
-            {isPro ? (
-              <button
-                onClick={handleManage}
-                disabled={loading}
-                className="w-full py-3 rounded-xl bg-white text-blue-600 font-bold hover:bg-blue-50 disabled:opacity-50 transition-colors"
-              >
-                {loading ? t('upgrading') : t('manage')}
-              </button>
-            ) : (
-              <button
-                onClick={handleUpgrade}
-                disabled={loading}
-                className="w-full py-3 rounded-xl bg-white text-blue-600 font-bold hover:bg-blue-50 disabled:opacity-50 transition-colors"
-              >
-                {loading ? t('upgrading') : t('upgrade')}
-              </button>
-            )}
+
+            <div className="relative">
+              {/* オーナーのプランでカバーされているケース */}
+              {coveredByOwner && !isOwnerPro && (
+                <div className="mb-3 text-center text-sm text-yellow-200 bg-white/10 rounded-xl py-2.5 px-3">
+                  {t('coveredByOwner')}
+                </div>
+              )}
+
+              {isOwnerPro ? (
+                <button
+                  onClick={handleManage}
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl bg-white text-blue-600 font-bold hover:bg-blue-50 disabled:opacity-50 transition-colors"
+                >
+                  {loading ? t('upgrading') : t('manage')}
+                </button>
+              ) : coveredByOwner ? (
+                <div className="w-full py-3 text-center rounded-xl bg-white/20 text-white text-sm font-medium">
+                  {t('current')}
+                </div>
+              ) : (
+                <button
+                  onClick={handleUpgrade}
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl bg-white text-blue-600 font-bold hover:bg-blue-50 disabled:opacity-50 transition-colors shadow-lg"
+                >
+                  {loading ? t('upgrading') : t('upgrade')}
+                </button>
+              )}
+            </div>
           </div>
+        </div>
+
+        {/* FAQ */}
+        <div className="max-w-3xl mx-auto mt-12 space-y-4">
+          <h3 className="text-center text-slate-400 text-sm font-semibold uppercase tracking-wider mb-6">よくある質問</h3>
+          {[
+            {
+              q: 'チームメンバーは課金が必要ですか？',
+              a: 'いいえ。プロジェクトのオーナーが Pro に加入すると、そのプロジェクトに招待された全員が追加費用なしで Pro 機能を使えます。',
+            },
+            {
+              q: 'いつでもキャンセルできますか？',
+              a: 'はい。キャンセルはいつでも可能です。解約後も請求期間の終わりまで Pro 機能を使えます。',
+            },
+            {
+              q: '複数プロジェクトのオーナーになれますか？',
+              a: 'はい。Pro プランはプロジェクト数無制限です。あなたが作ったすべてのプロジェクトのメンバーが Pro 機能を使えます。',
+            },
+          ].map((faq, i) => (
+            <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-5">
+              <p className="text-white font-semibold text-sm mb-2">{faq.q}</p>
+              <p className="text-slate-400 text-sm leading-relaxed">{faq.a}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

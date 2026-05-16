@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { getProAccess } from '@/lib/pro'
 
 export async function POST(req: Request) {
   const supabase = await createClient()
@@ -9,13 +10,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('subscription_status')
-    .eq('id', user.id)
-    .single()
-
-  if (profile?.subscription_status !== 'pro') {
+  const { isPro } = await getProAccess(user.id)
+  if (!isPro) {
     return NextResponse.json({ error: 'Proプランのみ利用できます' }, { status: 403 })
   }
 

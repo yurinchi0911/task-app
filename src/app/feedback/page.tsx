@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getProAccess } from '@/lib/pro'
 import FeedbackClient from './FeedbackClient'
 import type { Feedback } from '@/lib/types'
 
@@ -8,17 +9,8 @@ export default async function FeedbackPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('subscription_status')
-    .eq('id', user.id)
-    .single() as { data: { subscription_status?: string } | null }
-
-  const isPro = profile?.subscription_status === 'pro'
-
-  if (!isPro) {
-    redirect('/pricing?reason=feedback')
-  }
+  const { isPro } = await getProAccess(user.id)
+  if (!isPro) redirect('/pricing?reason=feedback')
 
   const { data: feedbacks } = await supabase
     .from('feedbacks')

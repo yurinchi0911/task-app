@@ -4,6 +4,7 @@ import Link from 'next/link'
 import LogoutButton from '@/components/ui/LogoutButton'
 import LocaleSwitcher from '@/components/ui/LocaleSwitcher'
 import { getLocale, getTranslations } from 'next-intl/server'
+import { getProAccess } from '@/lib/pro'
 import type { Profile } from '@/lib/types'
 
 export default async function ProjectsLayout({ children }: { children: React.ReactNode }) {
@@ -13,13 +14,14 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('name, email, subscription_status')
+    .select('name, email')
     .eq('id', user.id)
-    .single() as { data: (Pick<Profile, 'name' | 'email'> & { subscription_status?: string }) | null }
+    .single() as { data: Pick<Profile, 'name' | 'email'> | null }
+
+  const { isPro, isOwnerPro, coveredByOwner } = await getProAccess(user.id)
 
   const locale = await getLocale()
   const t = await getTranslations('nav')
-  const isPro = profile?.subscription_status === 'pro'
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -34,6 +36,32 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
             {t('brand')}
           </Link>
           <div className="flex items-center gap-3">
+            {/* Pro バッジ or アップグレードリンク */}
+            {!isPro && (
+              <Link
+                href="/pricing"
+                className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-white font-medium hover:opacity-90 transition-opacity"
+              >
+                ⚡ Upgrade to Pro
+              </Link>
+            )}
+            {isOwnerPro && (
+              <Link
+                href="/pricing"
+                className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 text-white font-medium"
+                title="サブスクリプション管理"
+              >
+                ✦ Pro
+              </Link>
+            )}
+            {coveredByOwner && !isOwnerPro && (
+              <span className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium"
+                title="チームオーナーのProプランでカバーされています">
+                ✦ Pro（チーム）
+              </span>
+            )}
+
+            {/* フィードバックリンク（Pro ユーザーのみ） */}
             {isPro && (
               <Link
                 href="/feedback"
@@ -45,19 +73,7 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
                 フィードバック
               </Link>
             )}
-            {!isPro && (
-              <Link
-                href="/pricing"
-                className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-white font-medium hover:opacity-90 transition-opacity"
-              >
-                ⚡ Upgrade to Pro
-              </Link>
-            )}
-            {isPro && (
-              <span className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 text-white font-medium">
-                ✦ Pro
-              </span>
-            )}
+
             <LocaleSwitcher current={locale} />
             <span className="text-sm text-slate-600 hidden sm:block">
               {profile?.name || profile?.email || user.email}

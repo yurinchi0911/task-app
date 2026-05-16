@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getProAccess } from '@/lib/pro'
 import PricingClient from './PricingClient'
 
 export default async function PricingPage() {
@@ -6,14 +7,22 @@ export default async function PricingPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   let isPro = false
+  let isOwnerPro = false
+  let coveredByOwner = false
+
   if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('subscription_status')
-      .eq('id', user.id)
-      .single()
-    isPro = (profile?.subscription_status as string) === 'pro'
+    const access = await getProAccess(user.id)
+    isPro = access.isPro
+    isOwnerPro = access.isOwnerPro
+    coveredByOwner = access.coveredByOwner
   }
 
-  return <PricingClient isPro={isPro} isLoggedIn={!!user} />
+  return (
+    <PricingClient
+      isPro={isPro}
+      isOwnerPro={isOwnerPro}
+      coveredByOwner={coveredByOwner}
+      isLoggedIn={!!user}
+    />
+  )
 }
