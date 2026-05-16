@@ -10,11 +10,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t('title'),
     description: t('description'),
-    // public/icon.png（直下の静的ファイル）をタブ用ファビコンにする
-    icons: {
-      icon: [{ url: '/icon.png', type: 'image/png' }],
-      apple: [{ url: '/icon.png', type: 'image/png' }],
-    },
   }
 }
 
