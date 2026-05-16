@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 
@@ -12,13 +12,36 @@ interface Props {
   isLoggedIn: boolean
 }
 
-export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLoggedIn }: Props) {
+export default function PricingClient(props: Props) {
+  return (
+    <Suspense fallback={null}>
+      <PricingContent {...props} />
+    </Suspense>
+  )
+}
+
+function PricingContent({ isPro, isOwnerPro, coveredByOwner, isLoggedIn }: Props) {
   const t = useTranslations('pricing')
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
 
+  const reason = searchParams.get('reason')
+  const reasonBanner =
+    reason === 'feedback'
+      ? t('reasonBannerFeedback')
+      : reason === 'project_limit'
+        ? t('reasonBannerProjectLimit')
+        : null
+
   async function handleUpgrade() {
-    if (!isLoggedIn) { router.push('/login'); return }
+    if (!isLoggedIn) {
+      const qs = searchParams.toString()
+      const dest = `${pathname}${qs ? `?${qs}` : ''}`
+      router.push(`/login?redirect=${encodeURIComponent(dest)}`)
+      return
+    }
     setLoading(true)
     const res = await fetch('/api/stripe/checkout', { method: 'POST' })
     const { url } = await res.json()
@@ -62,6 +85,12 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
           <h1 className="text-4xl font-bold text-white mb-3">{t('title')}</h1>
           <p className="text-slate-400 text-lg">{t('subtitle')}</p>
         </div>
+
+        {reasonBanner && (
+          <div className="max-w-3xl mx-auto mb-8 rounded-xl border border-amber-400/40 bg-amber-500/15 px-5 py-3 text-amber-100 text-sm leading-relaxed text-center">
+            {reasonBanner}
+          </div>
+        )}
 
         <div className="max-w-3xl mx-auto mb-8">
           <div className="bg-gradient-to-r from-blue-600/20 to-violet-600/20 border border-blue-500/30 rounded-2xl px-6 py-4 flex items-start gap-3">

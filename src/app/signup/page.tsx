@@ -1,14 +1,30 @@
 'use client'
 
+import { Suspense, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { postAuthDestination } from '@/lib/safe-redirect'
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupInner />
+    </Suspense>
+  )
+}
+
+function SignupInner() {
   const t = useTranslations('auth')
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectParam = searchParams.get('redirect')
+  const loginHref =
+    redirectParam != null && redirectParam !== ''
+      ? `/login?redirect=${encodeURIComponent(redirectParam)}`
+      : '/login'
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -34,7 +50,7 @@ export default function SignupPage() {
       setLoading(false)
       return
     }
-    router.push('/projects')
+    router.push(postAuthDestination(redirectParam))
     router.refresh()
   }
 
@@ -104,7 +120,7 @@ export default function SignupPage() {
 
         <p className="mt-6 text-center text-sm text-slate-400">
           {t('hasAccount')}{' '}
-          <Link href="/login" className="text-blue-400 hover:text-blue-300 font-medium">
+          <Link href={loginHref} className="text-blue-400 hover:text-blue-300 font-medium">
             {t('login')}
           </Link>
         </p>

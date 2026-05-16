@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { postAuthDestination } from '@/lib/safe-redirect'
 
 export default function LoginPage() {
   return (
@@ -18,6 +19,11 @@ function LoginInner() {
   const t = useTranslations('auth')
   const router = useRouter()
   const searchParams = useSearchParams()
+  const redirectParam = searchParams.get('redirect')
+  const signupHref =
+    redirectParam != null && redirectParam !== ''
+      ? `/signup?redirect=${encodeURIComponent(redirectParam)}`
+      : '/signup'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -40,7 +46,7 @@ function LoginInner() {
       setLoading(false)
       return
     }
-    router.push('/projects')
+    router.push(postAuthDestination(searchParams.get('redirect')))
     router.refresh()
   }
 
@@ -98,7 +104,7 @@ function LoginInner() {
 
         <p className="mt-6 text-center text-sm text-slate-400">
           {t('noAccount')}{' '}
-          <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium">
+          <Link href={signupHref} className="text-blue-400 hover:text-blue-300 font-medium">
             {t('signup')}
           </Link>
         </p>
