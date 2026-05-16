@@ -70,7 +70,7 @@ vercel
 
 1. Stripe Dashboard で **Live モード** に切り替え  
 2. **Developers → API keys** で `secret key` を `STRIPE_SECRET_KEY` に設定  
-3. **Products** で Pro の **定期請求 Price** を作成し、`STRIPE_PRO_PRICE_ID` に `price_xxxxx` を設定（既に使った Price は金額変更不可のため、新規 Price を作ること）  
+3. **Products** で Pro の **定期請求 Price** を作成し、`STRIPE_PRO_PRICE_ID` に `price_xxxxx` を設定（既に使った Price は金額変更不可のため、新規 Price を作ること）。Checkout に表示される金額は **この Price が唯一の正**です。`/pricing` の文言や `$19` とズレる場合は、Stripe の Price を `$19` に合わせるか、`STRIPE_PRO_PRICE_ID` をその Price に更新してください。  
 4. **Developers → Webhooks → Add endpoint**  
    - **Endpoint URL**: `https://YOUR_DOMAIN/api/stripe/webhook`  
    - **Events**:  

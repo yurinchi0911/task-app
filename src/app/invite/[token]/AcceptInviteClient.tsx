@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 import type { ProjectInvite } from '@/lib/types'
 
 interface Props {
@@ -22,40 +21,18 @@ export default function AcceptInviteClient({ invite, project, token, isLoggedIn,
   async function handleAccept() {
     setLoading(true)
     setError('')
-    const supabase = createClient()
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      router.push(`/login?redirect=/invite/${token}`)
-      return
-    }
+    const res = await fetch(`/api/invite/${token}/accept`, { method: 'POST' })
+    const json = await res.json().catch(() => ({}))
 
-    const { error: updateError } = await supabase
-      .from('project_invites')
-      .update({ accepted_at: new Date().toISOString() } as Record<string, string>)
-      .eq('token', token)
-
-    if (updateError) {
-      setError('招待の受諾に失敗しました: ' + updateError.message)
+    if (!res.ok) {
+      setError(typeof json.message === 'string' ? json.message : '参加に失敗しました。')
       setLoading(false)
       return
     }
 
-    const { error: memberError } = await supabase
-      .from('project_members')
-      .insert({
-        project_id: project.id,
-        user_id: user.id,
-        role: invite.role,
-      } as Record<string, string>)
-
-    if (memberError && !memberError.message.includes('duplicate')) {
-      setError('メンバー追加に失敗しました: ' + memberError.message)
-      setLoading(false)
-      return
-    }
-
-    router.push(`/projects/${project.id}`)
+    router.push(`/projects/${json.projectId ?? project.id}`)
+    router.refresh()
   }
 
   return (
@@ -105,6 +82,7 @@ export default function AcceptInviteClient({ invite, project, token, isLoggedIn,
               {userEmail} としてログイン中
             </p>
             <button
+              type="button"
               onClick={handleAccept}
               disabled={loading}
               className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold transition-colors"

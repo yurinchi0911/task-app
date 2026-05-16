@@ -1,5 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 
+/** Stripe で自分のアカウントが課金済みか（作成プロジェクト数・オーナープランの判定用） */
+export async function isPayingSubscriber(userId: string): Promise<boolean> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('profiles')
+    .select('subscription_status')
+    .eq('id', userId)
+    .single() as { data: { subscription_status?: string } | null }
+
+  return data?.subscription_status === 'pro'
+}
+
 /**
  * Pro アクセス判定（オーナー課金モデル）
  *

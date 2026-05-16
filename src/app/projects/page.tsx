@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import type { Project, ProjectMember } from '@/lib/types'
+import { FREE_PLAN_LIMITS } from '@/lib/stripe'
+import { isPayingSubscriber } from '@/lib/pro'
 
 function colorClass(hex: string) {
   const map: Record<string, string> = {
@@ -20,10 +23,21 @@ export default async function ProjectsPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const paying = await isPayingSubscriber(user.id)
+  const { count: ownedCount } = await supabase
+    .from('projects')
+    .select('*', { count: 'exact', head: true })
+    .eq('owner_id', user.id)
+
+  const canCreateOwnedProject =
+    paying || (ownedCount ?? 0) < FREE_PLAN_LIMITS.maxProjects
+
   const { data: memberships } = await supabase
     .from('project_members')
     .select('project_id')
-    .eq('user_id', user!.id) as { data: Pick<ProjectMember, 'project_id'>[] | null }
+    .eq('user_id', user.id) as { data: Pick<ProjectMember, 'project_id'>[] | null }
 
   const projectIds = memberships?.map(m => m.project_id) ?? []
 
@@ -44,15 +58,24 @@ export default async function ProjectsPage() {
           <h1 className="text-2xl font-bold text-slate-900">プロジェクト</h1>
           <p className="text-slate-500 text-sm mt-0.5">あなたが参加しているプロジェクト一覧</p>
         </div>
-        <Link
-          href="/projects/new"
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors shadow-sm"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          新規プロジェクト
-        </Link>
+        {canCreateOwnedProject ? (
+          <Link
+            href="/projects/new"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            新規プロジェクト
+          </Link>
+        ) : (
+          <Link
+            href="/pricing?reason=project_limit"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-sm font-semibold hover:bg-amber-100 transition-colors"
+          >
+            Free は 1 プロジェクトまで · Pro で追加
+          </Link>
+        )}
       </div>
 
       {projects.length === 0 ? (
@@ -60,12 +83,21 @@ export default async function ProjectsPage() {
           <div className="text-5xl mb-4">📋</div>
           <h2 className="text-lg font-semibold text-slate-700 mb-1">まだプロジェクトがありません</h2>
           <p className="text-slate-400 text-sm mb-4">新しいプロジェクトを作成するか、招待を受けましょう</p>
-          <Link
-            href="/projects/new"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
-          >
-            プロジェクトを作成
-          </Link>
+          {canCreateOwnedProject ? (
+            <Link
+              href="/projects/new"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
+            >
+              プロジェクトを作成
+            </Link>
+          ) : (
+            <Link
+              href="/pricing?reason=project_limit"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-sm font-semibold"
+            >
+              Pro でプロジェクトを追加
+            </Link>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

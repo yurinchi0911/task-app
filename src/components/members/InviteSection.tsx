@@ -3,15 +3,22 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { ProjectInvite } from '@/lib/types'
-import { v4 as uuidv4 } from 'uuid'
 
 interface Props {
   projectId: string
   pendingInvites: ProjectInvite[]
-  currentUserId: string
+  canInviteMembers: boolean
+  slotsUsed: number
+  slotsMax: number
 }
 
-export default function InviteSection({ projectId, pendingInvites, currentUserId }: Props) {
+export default function InviteSection({
+  projectId,
+  pendingInvites,
+  canInviteMembers,
+  slotsUsed,
+  slotsMax,
+}: Props) {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -25,30 +32,24 @@ export default function InviteSection({ projectId, pendingInvites, currentUserId
     setError('')
     setSuccess('')
 
-    const supabase = createClient()
-    const token = uuidv4()
+    const res = await fetch(`/api/projects/${projectId}/invites`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim().toLowerCase() }),
+    })
 
-    const { data, error: insertError } = await supabase
-      .from('project_invites')
-      .insert({
-        project_id: projectId,
-        email: email.trim().toLowerCase(),
-        role: 'member',
-        invited_by: currentUserId,
-        token,
-      } as Record<string, string>)
-      .select()
-      .single() as { data: ProjectInvite | null; error: { message: string } | null }
+    const json = await res.json().catch(() => ({}))
 
-    if (insertError) {
-      setError('招待の作成に失敗しました: ' + insertError.message)
+    if (!res.ok) {
+      setError(typeof json.message === 'string' ? json.message : '招待の作成に失敗しました。')
       setLoading(false)
       return
     }
 
-    const inviteUrl = `${window.location.origin}/invite/${token}`
+    const invite = json.invite as ProjectInvite
+    const inviteUrl = `${window.location.origin}/invite/${invite.token}`
     setSuccess(`招待リンクを生成しました！\n${inviteUrl}`)
-    if (data) setInvites(prev => [data, ...prev])
+    setInvites(prev => [invite, ...prev])
     setEmail('')
     setLoading(false)
   }
@@ -67,18 +68,26 @@ export default function InviteSection({ projectId, pendingInvites, currentUserId
       </div>
 
       <div className="p-5">
+        {!canInviteMembers && (
+          <div className="mb-4 px-4 py-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+            Freeプランではメンバーと保留中の招待を合わせて<strong>最大{slotsMax}名</strong>までです（現在 {slotsUsed}/{slotsMax}）。
+            <span className="block mt-1 text-xs text-amber-800">プロジェクトのオーナーが Pro にすると無制限になります。</span>
+          </div>
+        )}
+
         <form onSubmit={handleInvite} className="flex gap-2 mb-4">
           <input
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
+            disabled={!canInviteMembers}
             placeholder="招待するメールアドレス"
-            className="flex-1 px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900"
+            className="flex-1 px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
           />
           <button
             type="submit"
-            disabled={loading || !email.trim()}
+            disabled={loading || !email.trim() || !canInviteMembers}
             className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold transition-colors whitespace-nowrap"
           >
             {loading ? '処理中…' : '招待リンクを生成'}
@@ -98,7 +107,8 @@ export default function InviteSection({ projectId, pendingInvites, currentUserId
               {success.split('\n')[1]}
             </p>
             <button
-              onClick={() => navigator.clipboard.writeText(success.split('\n')[1])}
+              type="button"
+              onClick={() => navigator.clipboard.writeText(success.split('\n')[1] ?? '')}
               className="mt-2 text-xs text-emerald-700 hover:underline"
             >
               コピーする
@@ -119,6 +129,7 @@ export default function InviteSection({ projectId, pendingInvites, currentUserId
                     </p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => handleCancelInvite(inv.id)}
                     className="text-xs text-red-500 hover:text-red-700 hover:underline"
                   >

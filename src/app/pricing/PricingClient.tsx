@@ -112,7 +112,9 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
                 <span className="text-blue-200 mb-1">{t('monthly')}</span>
               </div>
               {/* 1人あたり換算 */}
-              <p className="text-blue-200 text-xs mt-1 opacity-80">3人チームなら 1人あたり約 $6/月</p>
+              <p className="text-blue-200 text-xs mt-1 opacity-80">
+                3人チームなら 1人あたり約 $6〜7/月（$19÷3）
+              </p>
             </div>
 
             <ul className="space-y-3 mb-8 relative">

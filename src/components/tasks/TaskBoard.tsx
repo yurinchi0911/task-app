@@ -28,9 +28,10 @@ interface Props {
   initialTasks: Task[]
   members: ProjectMember[]
   currentUserId: string
+  featuresPro: boolean
 }
 
-export default function TaskBoard({ projectId, initialTasks, members }: Props) {
+export default function TaskBoard({ projectId, initialTasks, members, featuresPro }: Props) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [view, setView] = useState<'kanban' | 'list' | 'tree'>('kanban')
   const [hideDone, setHideDone] = useState(false)
@@ -39,6 +40,10 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
   const supabase = createClient()
 
   const visibleTasks = hideDone ? tasks.filter(t => t.status !== 'done') : tasks
+
+  useEffect(() => {
+    if (!featuresPro && view === 'tree') setView('kanban')
+  }, [featuresPro, view])
 
   // Realtimeサブスクリプション
   useEffect(() => {
@@ -139,6 +144,7 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
             </svg>
             リスト
           </button>
+          {featuresPro && (
           <button
             onClick={() => setView('tree')}
             className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 transition-colors ${
@@ -150,6 +156,7 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
             </svg>
             ツリー
           </button>
+          )}
         </div>
         {view !== 'tree' && (
           <div className="flex items-center gap-2">
@@ -255,7 +262,7 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
       )}
 
       {/* ツリービュー */}
-      {view === 'tree' && (
+      {featuresPro && view === 'tree' && (
         <TaskTreeView
           projectId={projectId}
           tasks={tasks}
@@ -269,6 +276,7 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
           task={editingTask}
           members={members}
           allTasks={tasks}
+          allowParentTasks={featuresPro}
           onSave={handleSaveTask}
           onClose={() => { setShowModal(false); setEditingTask(null) }}
         />

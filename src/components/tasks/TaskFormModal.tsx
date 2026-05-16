@@ -18,11 +18,21 @@ interface Props {
   members: ProjectMember[]
   allTasks?: Task[]
   defaultParentId?: string | null
+  /** false のとき親子タスクは使わない（Free のカンバン／リスト） */
+  allowParentTasks?: boolean
   onSave: (values: FormValues) => Promise<void>
   onClose: () => void
 }
 
-export default function TaskFormModal({ task, members, allTasks = [], defaultParentId = null, onSave, onClose }: Props) {
+export default function TaskFormModal({
+  task,
+  members,
+  allTasks = [],
+  defaultParentId = null,
+  allowParentTasks = true,
+  onSave,
+  onClose,
+}: Props) {
   const [title, setTitle] = useState(task?.title ?? '')
   const [assigneeId, setAssigneeId] = useState<string>(task?.assignee_id ?? '')
   const [dueDate, setDueDate] = useState<string>(task?.due_date ?? '')
@@ -59,7 +69,7 @@ export default function TaskFormModal({ task, members, allTasks = [], defaultPar
       status,
       priority,
       notes: notes.trim() || null,
-      parent_task_id: parentTaskId || null,
+      parent_task_id: allowParentTasks ? (parentTaskId || null) : null,
     })
     setLoading(false)
   }
@@ -146,7 +156,7 @@ export default function TaskFormModal({ task, members, allTasks = [], defaultPar
             />
           </div>
 
-          {parentCandidates.length > 0 && (
+          {allowParentTasks && parentCandidates.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 親タスク

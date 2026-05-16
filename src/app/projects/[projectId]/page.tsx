@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import TaskBoard from '@/components/tasks/TaskBoard'
 import StandupSection from '@/components/standup/StandupSection'
+import { getProAccess } from '@/lib/pro'
 import type { Project, Task, ProjectMember } from '@/lib/types'
 
 interface Props {
@@ -43,6 +44,8 @@ export default async function ProjectPage({ params }: Props) {
     .select('*, profiles(id, name, email)')
     .eq('project_id', projectId) as { data: ProjectMember[] | null }
 
+  const access = await getProAccess(user.id)
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -71,17 +74,20 @@ export default async function ProjectPage({ params }: Props) {
         </Link>
       </div>
 
-      <StandupSection
-        projectId={projectId}
-        currentUserId={user.id}
-      />
+      {access.isPro && (
+        <StandupSection
+          projectId={projectId}
+          currentUserId={user.id}
+        />
+      )}
 
-      <div className="mt-6">
+      <div className={access.isPro ? 'mt-6' : ''}>
         <TaskBoard
           projectId={projectId}
           initialTasks={tasks ?? []}
           members={members ?? []}
           currentUserId={user.id}
+          featuresPro={access.isPro}
         />
       </div>
     </div>

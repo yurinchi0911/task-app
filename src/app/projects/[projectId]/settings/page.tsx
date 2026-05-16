@@ -3,6 +3,8 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import InviteSection from '@/components/members/InviteSection'
 import type { Project, ProjectMember, ProjectInvite } from '@/lib/types'
+import { FREE_PLAN_LIMITS } from '@/lib/stripe'
+import { isPayingSubscriber } from '@/lib/pro'
 
 interface Props {
   params: Promise<{ projectId: string }>
@@ -42,6 +44,12 @@ export default async function ProjectSettingsPage({ params }: Props) {
     .eq('project_id', projectId)
     .is('accepted_at', null)
     .order('created_at', { ascending: false }) as { data: ProjectInvite[] | null }
+
+  const ownerPaying = await isPayingSubscriber(project.owner_id)
+
+  const slotsUsed = (members?.length ?? 0) + (invites?.length ?? 0)
+  const canInviteMembers =
+    ownerPaying || slotsUsed < FREE_PLAN_LIMITS.maxMembers
 
   const isAdmin = myMembership.role === 'owner' || myMembership.role === 'admin'
 
@@ -89,7 +97,9 @@ export default async function ProjectSettingsPage({ params }: Props) {
         <InviteSection
           projectId={projectId}
           pendingInvites={invites ?? []}
-          currentUserId={user.id}
+          canInviteMembers={canInviteMembers}
+          slotsUsed={slotsUsed}
+          slotsMax={FREE_PLAN_LIMITS.maxMembers}
         />
       )}
     </div>
