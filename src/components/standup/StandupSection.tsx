@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Standup } from '@/lib/types'
 
@@ -18,6 +19,10 @@ function todayJST(): string {
 }
 
 export default function StandupSection({ projectId, currentUserId }: Props) {
+  const t = useTranslations('standup')
+  const locale = useLocale()
+  const dateLocaleTag = locale === 'ja' ? 'ja-JP' : 'en-US'
+
   const [expanded, setExpanded] = useState(false)
   const [standups, setStandups] = useState<StandupWithProfile[]>([])
   const [myStandup, setMyStandup] = useState<StandupWithProfile | null>(null)
@@ -28,6 +33,16 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const supabase = createClient()
   const todayStr = todayJST()
+
+  const headerDateLabel = useMemo(
+    () =>
+      new Intl.DateTimeFormat(dateLocaleTag, {
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short',
+      }).format(new Date()),
+    [dateLocaleTag],
+  )
 
   const loadStandups = useCallback(async () => {
     setLoading(true)
@@ -142,7 +157,7 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
   }
 
   const getDisplayName = (s: StandupWithProfile) =>
-    s.profiles?.name || s.profiles?.email || '不明なユーザー'
+    s.profiles?.name || s.profiles?.email || t('unknownUser')
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -159,16 +174,17 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
           </div>
           <div className="text-left">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-800 text-sm">デイリースタンドアップ</span>
+              <span className="font-semibold text-slate-800 text-sm">{t('title')}</span>
               {myStandup && (
                 <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
-                  ✓ 投稿済み
+                  ✓ {t('postedBadge')}
                 </span>
               )}
             </div>
             <span className="text-xs text-slate-500">
-              {new Date().toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })} •
-              {expanded ? ` ${standups.length}件の投稿` : ' クリックで開く'}
+              {expanded
+                ? t('subheaderExpanded', { date: headerDateLabel, count: standups.length })
+                : t('subheaderCollapsed', { date: headerDateLabel })}
             </span>
           </div>
         </div>
@@ -200,19 +216,19 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
                   <span className="w-5 h-5 rounded-full bg-violet-600 text-white text-xs flex items-center justify-center font-bold">
                     {myStandup ? '✓' : '!'}
                   </span>
-                  {myStandup ? '自分のスタンドアップを編集' : '今日のスタンドアップを投稿'}
+                  {myStandup ? t('formTitleEdit') : t('formTitleNew')}
                 </h3>
 
                 <div className="space-y-3">
                   <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">
-                      昨日やったこと
-                      <span className="ml-1 font-normal text-slate-400">（任意）</span>
+                      {t('yesterdayLabel')}
+                      <span className="ml-1 font-normal text-slate-400">{t('optional')}</span>
                     </label>
                     <textarea
                       value={yesterday}
                       onChange={e => setYesterday(e.target.value)}
-                      placeholder="例: ログイン機能の実装を完了した"
+                      placeholder={t('yesterdayPlaceholder')}
                       rows={2}
                       className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-400 bg-white resize-none text-slate-800"
                     />
@@ -220,12 +236,12 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
 
                   <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">
-                      今日やること <span className="text-red-500">*</span>
+                      {t('todayLabel')} <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       value={today}
                       onChange={e => setToday(e.target.value)}
-                      placeholder="例: ダッシュボードUIの実装を進める"
+                      placeholder={t('todayPlaceholder')}
                       rows={2}
                       required
                       className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-400 bg-white resize-none text-slate-800"
@@ -234,13 +250,13 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
 
                   <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">
-                      ブロッカー・懸念事項
-                      <span className="ml-1 font-normal text-slate-400">（任意）</span>
+                      {t('blockersLabel')}
+                      <span className="ml-1 font-normal text-slate-400">{t('optional')}</span>
                     </label>
                     <textarea
                       value={blockers}
                       onChange={e => setBlockers(e.target.value)}
-                      placeholder="例: APIの仕様が不明確で確認が必要"
+                      placeholder={t('blockersPlaceholder')}
                       rows={2}
                       className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-400 bg-white resize-none text-slate-800"
                     />
@@ -257,9 +273,9 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
-                        投稿中…
+                        {t('submitting')}
                       </>
-                    ) : myStandup ? '更新する' : 'スタンドアップを投稿'}
+                    ) : myStandup ? t('submitUpdate') : t('submitNew')}
                   </button>
                 </div>
               </form>
@@ -268,7 +284,7 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
               {standups.filter(s => s.user_id !== currentUserId).length > 0 && (
                 <div>
                   <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                    チームのスタンドアップ
+                    {t('teamStandups')}
                   </h3>
                   <div className="space-y-3">
                     {standups
@@ -281,24 +297,33 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
                             </div>
                             <span className="text-sm font-medium text-slate-700">{getDisplayName(s)}</span>
                             <span className="text-xs text-slate-400 ml-auto">
-                              {new Date(s.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+                              {new Date(s.created_at).toLocaleTimeString(dateLocaleTag, {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
                             </span>
                           </div>
 
                           <div className="space-y-2 text-sm">
                             {s.yesterday && (
                               <div>
-                                <span className="text-xs font-medium text-slate-400 block mb-0.5">昨日</span>
+                                <span className="text-xs font-medium text-slate-400 block mb-0.5">
+                                  {t('sectionYesterday')}
+                                </span>
                                 <p className="text-slate-700 whitespace-pre-wrap">{s.yesterday}</p>
                               </div>
                             )}
                             <div>
-                              <span className="text-xs font-medium text-slate-400 block mb-0.5">今日</span>
+                              <span className="text-xs font-medium text-slate-400 block mb-0.5">
+                                {t('sectionToday')}
+                              </span>
                               <p className="text-slate-700 whitespace-pre-wrap">{s.today}</p>
                             </div>
                             {s.blockers && (
                               <div className="bg-amber-50 rounded-lg p-2.5 border border-amber-100">
-                                <span className="text-xs font-medium text-amber-600 block mb-0.5">⚠ ブロッカー</span>
+                                <span className="text-xs font-medium text-amber-600 block mb-0.5">
+                                  ⚠ {t('sectionBlockers')}
+                                </span>
                                 <p className="text-slate-700 whitespace-pre-wrap text-sm">{s.blockers}</p>
                               </div>
                             )}
@@ -310,9 +335,7 @@ export default function StandupSection({ projectId, currentUserId }: Props) {
               )}
 
               {standups.length === 0 && !loading && (
-                <div className="text-center py-4 text-slate-400 text-sm">
-                  まだ今日のスタンドアップはありません。最初に投稿してみましょう！
-                </div>
+                <div className="text-center py-4 text-slate-400 text-sm">{t('emptyState')}</div>
               )}
             </>
           )}
