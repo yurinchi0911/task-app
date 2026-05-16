@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations, useLocale } from 'next-intl'
 import { useState, useCallback, useMemo } from 'react'
 import type { Task, TaskStatus, TaskPriority } from '@/lib/types'
 import TaskFormModal from './TaskFormModal'
@@ -30,8 +31,21 @@ const BRANCH_COLORS = [
 const PRIORITY_DOT: Record<string, string> = {
   low: '#94A3B8', medium: '#3B82F6', high: '#F59E0B', urgent: '#EF4444',
 }
-const PRIORITY_LABEL: Record<string, string> = {
-  low: '低', medium: '中', high: '高', urgent: '緊急',
+
+/** DB上の親IDが一覧に無いときはルートとして扱い、ツリーが欠落しないようにする */
+function normalizeParentsForTree(tasks: Task[]): Task[] {
+  const ids = new Set(tasks.map(t => t.id))
+  return tasks.map(t => ({
+    ...t,
+    parent_task_id: t.parent_task_id && ids.has(t.parent_task_id) ? t.parent_task_id : null,
+  }))
+}
+
+/** 親子の接続線（ベジェよりカードとの重なりが少ない折れ線） */
+function orthogonalEdgePath(x1: number, y1: number, x2: number, y2: number): string {
+  const bend = x1 + Math.max((x2 - x1) * 0.42, (CARD_W + H_GAP) * 0.25)
+  const midX = Math.min(bend, x2 - 8)
+  return `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`
 }
 
 interface FormValues {
@@ -56,9 +70,19 @@ interface LayoutEntry {
   parentId: string | null
 }
 
+function siblingTasks(all: Task[], parentId: string | null): Task[] {
+  return all
+    .filter(t => t.parent_task_id === parentId)
+    .sort(
+      (a, b) =>
+        (a.created_at ?? '').localeCompare(b.created_at ?? '') ||
+        (a.title ?? '').localeCompare(b.title ?? '', undefined, { sensitivity: 'base' }),
+    )
+}
+
 /** このタスクのサブツリー全体が占める高さ */
 function subtreeH(id: string, all: Task[]): number {
-  const kids = all.filter(t => t.parent_task_id === id)
+  const kids = siblingTasks(all, id)
   if (kids.length === 0) return CARD_H
   const total = kids.reduce((s, k) => s + subtreeH(k.id, all) + V_GAP, -V_GAP)
   return Math.max(CARD_H, total)
@@ -73,7 +97,7 @@ function buildEntries(
   colorIdx: number,
   result: LayoutEntry[],
 ): void {
-  const kids = all.filter(t => t.parent_task_id === parentId)
+  const kids = siblingTasks(all, parentId)
   let y = topY
   kids.forEach((task, i) => {
     const sh   = subtreeH(task.id, all)
@@ -101,7 +125,13 @@ interface CardProps {
   doneCount: number
 }
 
-function TaskCard({ entry, selected, onSelect, onEdit, onDelete, onStatusChange, onAddChild, childCount, doneCount }: CardProps) {
+function TreeMindMapCard({
+  entry, selected, onSelect, onEdit, onDelete, onStatusChange, onAddChild, childCount, doneCount,
+}: CardProps) {
+  const t = useTranslations('tasks')
+  const locale = useLocale()
+  const dateLocale = locale === 'ja' ? 'ja-JP' : 'en-US'
+
   const { task, cx, cy, colorIdx } = entry
   const col    = BRANCH_COLORS[colorIdx]
   const isOver = task.due_date && task.status !== 'done' && new Date(task.due_date) < new Date()
@@ -163,7 +193,7 @@ function TaskCard({ entry, selected, onSelect, onEdit, onDelete, onStatusChange,
                 marginTop: 2,
                 cursor: 'pointer',
               }}
-              title="ステータス変更"
+              title={t('treeChangeStatus')}
             >
               {statusStyle.icon}
             </button>
@@ -182,7 +212,7 @@ function TaskCard({ entry, selected, onSelect, onEdit, onDelete, onStatusChange,
                 onClick={e => { e.stopPropagation(); onAddChild(task.id) }}
                 style={{ color: '#94A3B8' }}
                 className="hover:text-emerald-500 p-0.5 rounded"
-                title="サブタスクを追加"
+                title={t('treeAddSubtask')}
               >
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -192,7 +222,7 @@ function TaskCard({ entry, selected, onSelect, onEdit, onDelete, onStatusChange,
                 onClick={e => { e.stopPropagation(); onEdit(task) }}
                 style={{ color: '#94A3B8' }}
                 className="hover:text-blue-500 p-0.5 rounded"
-                title="編集"
+                title={t('treeEditTooltip')}
               >
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -202,7 +232,7 @@ function TaskCard({ entry, selected, onSelect, onEdit, onDelete, onStatusChange,
                 onClick={e => { e.stopPropagation(); onDelete(task.id) }}
                 style={{ color: '#94A3B8' }}
                 className="hover:text-red-500 p-0.5 rounded"
-                title="削除"
+                title={t('treeDeleteTooltip')}
               >
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -218,14 +248,14 @@ function TaskCard({ entry, selected, onSelect, onEdit, onDelete, onStatusChange,
               className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full font-medium"
             >
               <span style={{ background: PRIORITY_DOT[task.priority] }} className="w-1.5 h-1.5 rounded-full" />
-              {PRIORITY_LABEL[task.priority]}
+              {t(`priorityLabel.${task.priority}`)}
             </span>
 
             {/* 期限 */}
             {task.due_date && (
               <span style={{ background: isOver ? '#FEE2E2' : '#F1F5F9', color: isOver ? '#DC2626' : '#64748B' }}
                 className="text-[10px] px-1.5 py-0.5 rounded-full">
-                {new Date(task.due_date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}
+                {new Date(task.due_date).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })}
                 {isOver && ' ⚠'}
               </span>
             )}
@@ -262,18 +292,22 @@ interface Props {
 }
 
 export default function TaskTreeView({ projectId, tasks, members, onTasksChange }: Props) {
+  const t = useTranslations('tasks')
   const [showModal, setShowModal]       = useState(false)
   const [editingTask, setEditingTask]   = useState<Task | null>(null)
   const [defaultParentId, setDefaultParentId] = useState<string | null>(null)
   const [selectedId, setSelectedId]     = useState<string | null>(null)
   const supabase = createClient()
 
+  const layoutTasks = useMemo(() => normalizeParentsForTree(tasks), [tasks])
+  const rootsCount = layoutTasks.filter(t => !t.parent_task_id).length
+
   // ── レイアウト計算 ──
   const entries = useMemo(() => {
     const result: LayoutEntry[] = []
-    buildEntries(tasks, null, 0, 0, 0, result)
+    buildEntries(layoutTasks, null, 0, 0, 0, result)
     return result
-  }, [tasks])
+  }, [layoutTasks])
 
   const canvasW = entries.length > 0
     ? Math.max(...entries.map(e => e.cx)) + CARD_W / 2 + PAD
@@ -291,18 +325,18 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
       const col = BRANCH_COLORS[e.colorIdx]
       const x1 = parent.cx + CARD_W / 2
       const y1 = parent.cy
-      const x2 = e.cx    - CARD_W / 2
+      const x2 = e.cx - CARD_W / 2
       const y2 = e.cy
-      const cp = (x2 - x1) * 0.55
+      const d = orthogonalEdgePath(x1, y1, x2, y2)
       return (
         <path
           key={e.task.id}
-          d={`M ${x1},${y1} C ${x1 + cp},${y1} ${x2 - cp},${y2} ${x2},${y2}`}
+          d={d}
           stroke={col.line}
           strokeWidth="2.5"
           fill="none"
-          strokeLinecap="round"
-          opacity="0.7"
+          strokeLinejoin="round"
+          opacity="0.75"
         />
       )
     }), [entries])
@@ -323,11 +357,11 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
         .insert({ ...values, project_id: projectId } as Record<string, unknown>)
         .select('*')
         .single() as { data: Task | null; error: { message: string } | null }
-      if (error) alert('タスク追加エラー: ' + error.message)
+      if (error) alert(t('taskAddError') + error.message)
       else if (data) onTasksChange([...tasks, data])
     }
     setShowModal(false); setEditingTask(null); setDefaultParentId(null)
-  }, [editingTask, projectId, supabase, tasks, onTasksChange])
+  }, [editingTask, projectId, supabase, tasks, onTasksChange, t])
 
   const handleDeleteTask = useCallback(async (taskId: string) => {
     const { error } = await supabase.from('tasks').delete().eq('id', taskId)
@@ -353,9 +387,9 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
       {tasks.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 px-5 py-4 shadow-sm">
           <div className="flex items-center justify-between mb-2.5">
-            <span className="text-sm font-semibold text-slate-700">全体進捗</span>
+            <span className="text-sm font-semibold text-slate-700">{t('treeOverallProgress')}</span>
             <div className="flex items-center gap-3 text-sm">
-              <span className="text-slate-400">{completedCount} / {tasks.length} 完了</span>
+              <span className="text-slate-400">{t('treeCompletedOfTotal', { completed: completedCount, total: tasks.length })}</span>
               <span className={`font-bold text-base ${progress === 100 ? 'text-emerald-500' : 'text-blue-500'}`}>
                 {progress}%
               </span>
@@ -375,10 +409,10 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
           <div className="flex gap-4 mt-2 text-xs">
             {(['todo','in_progress','done'] as TaskStatus[]).map(s => {
               const c = tasks.filter(t => t.status === s).length
-              const map = { todo: ['未着手','#94A3B8'], in_progress: ['進行中','#3B82F6'], done: ['完了','#10B981'] }
+              const colors = { todo: '#94A3B8', in_progress: '#3B82F6', done: '#10B981' }
               return (
-                <span key={s} style={{ color: map[s][1] }} className="font-medium">
-                  {c} {map[s][0]}
+                <span key={s} style={{ color: colors[s] }} className="font-medium">
+                  {c} {t(`statusLabel.${s}`)}
                 </span>
               )
             })}
@@ -396,9 +430,9 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h3m0 0v5m0-5h3m6-3v3m0 0h3M7 11v5m0 0h3m-3 0v2" />
               </svg>
             </div>
-            <span className="text-sm font-semibold text-slate-700">タスクツリー</span>
+            <span className="text-sm font-semibold text-slate-700">{t('treePanelTitle')}</span>
             <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-              {tasks.filter(t => !t.parent_task_id).length} ルート · {tasks.length} 合計
+              {t('treeStats', { rootCount: rootsCount, total: tasks.length })}
             </span>
           </div>
           <button
@@ -408,7 +442,7 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            タスクを追加
+            {t('addTask')}
           </button>
         </div>
 
@@ -420,8 +454,13 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            <p className="text-sm font-medium text-slate-500">タスクがありません</p>
-            <p className="text-xs text-slate-400 mt-1">「タスクを追加」から始めましょう</p>
+            <p className="text-sm font-medium text-slate-500">{t('treeEmptyTitle')}</p>
+            <p className="text-xs text-slate-400 mt-1">{t('treeEmptyHint')}</p>
+          </div>
+        ) : entries.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400 px-4 text-center">
+            <p className="text-sm font-medium text-slate-600">{t('treeUnexpectedEmpty')}</p>
+            <p className="text-xs text-slate-500 mt-2 max-w-sm">{t('treeUnexpectedEmptyHint')}</p>
           </div>
         ) : (
           <div
@@ -447,15 +486,15 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
                     const y1 = parent.cy
                     const x2 = e.cx - CARD_W / 2
                     const y2 = e.cy
-                    const cp = (x2 - x1) * 0.55
+                    const d = orthogonalEdgePath(x1, y1, x2, y2)
                     return (
                       <path
                         key={`glow-${e.task.id}`}
-                        d={`M ${x1},${y1} C ${x1 + cp},${y1} ${x2 - cp},${y2} ${x2},${y2}`}
+                        d={d}
                         stroke={col.line}
                         strokeWidth="6"
                         fill="none"
-                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         opacity="0.12"
                       />
                     )
@@ -469,7 +508,7 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
                 const kids      = tasks.filter(t => t.parent_task_id === e.task.id)
                 const doneKids  = kids.filter(k => k.status === 'done').length
                 return (
-                  <TaskCard
+                  <TreeMindMapCard
                     key={e.task.id}
                     entry={e}
                     selected={selectedId === e.task.id}
@@ -494,6 +533,7 @@ export default function TaskTreeView({ projectId, tasks, members, onTasksChange 
           members={members}
           allTasks={tasks}
           defaultParentId={defaultParentId}
+          allowParentTasks
           onSave={handleSaveTask}
           onClose={() => { setShowModal(false); setEditingTask(null); setDefaultParentId(null) }}
         />

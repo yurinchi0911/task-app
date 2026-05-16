@@ -95,7 +95,19 @@
     "showCompleted": "Show completed",
     "parentTask": "Parent task",
     "parentHint": "(Add as subtask)",
-    "rootTaskOption": "None (root task)"
+    "rootTaskOption": "None (root task)",
+    "treeChangeStatus": "Change status",
+    "treeAddSubtask": "Add subtask",
+    "treeEditTooltip": "Edit",
+    "treeDeleteTooltip": "Delete",
+    "treeOverallProgress": "Overall progress",
+    "treeCompletedOfTotal": "{completed} / {total} completed",
+    "treePanelTitle": "Task tree",
+    "treeStats": "{rootCount} roots · {total} total",
+    "treeEmptyTitle": "No tasks yet",
+    "treeEmptyHint": "Use \"Add Task\" below to create one.",
+    "treeUnexpectedEmpty": "No tasks could be placed in the tree.",
+    "treeUnexpectedEmptyHint": "Some tasks may have an invalid parent. Try fixing parent tasks in List or Kanban view."
   },
   "members": {
     "title": "Team Members",

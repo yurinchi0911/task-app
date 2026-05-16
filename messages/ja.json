@@ -95,7 +95,19 @@
     "showCompleted": "完了を表示",
     "parentTask": "親タスク",
     "parentHint": "（サブタスクとして追加）",
-    "rootTaskOption": "なし（ルートタスク）"
+    "rootTaskOption": "なし（ルートタスク）",
+    "treeChangeStatus": "ステータスを変更",
+    "treeAddSubtask": "サブタスクを追加",
+    "treeEditTooltip": "編集",
+    "treeDeleteTooltip": "削除",
+    "treeOverallProgress": "全体進捗",
+    "treeCompletedOfTotal": "{completed} / {total} 完了",
+    "treePanelTitle": "タスクツリー",
+    "treeStats": "{rootCount} ルート · {total} 合計",
+    "treeEmptyTitle": "タスクがありません",
+    "treeEmptyHint": "下の「タスクを追加」から始めましょう。",
+    "treeUnexpectedEmpty": "ツリーに表示できるタスクがありません。",
+    "treeUnexpectedEmptyHint": "親タスクが壊れている可能性があります。リストやカンバンから親を直してください。"
   },
   "members": {
     "title": "メンバー管理",
