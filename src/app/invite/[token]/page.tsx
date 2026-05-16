@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getTranslations } from 'next-intl/server'
 import AcceptInviteClient from './AcceptInviteClient'
 import type { ProjectInvite } from '@/lib/types'
 
@@ -12,6 +13,7 @@ interface InviteWithProject extends ProjectInvite {
 
 export default async function InvitePage({ params }: Props) {
   const { token } = await params
+  const t = await getTranslations('invite')
   const supabase = await createClient()
 
   const { data: invite } = await supabase
@@ -26,8 +28,8 @@ export default async function InvitePage({ params }: Props) {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <div className="text-center text-white">
           <div className="text-5xl mb-4">❌</div>
-          <h1 className="text-xl font-bold mb-2">招待リンクが無効です</h1>
-          <p className="text-slate-400 text-sm">すでに使用済みか、取り消された招待リンクです</p>
+          <h1 className="text-xl font-bold mb-2">{t('invalid')}</h1>
+          <p className="text-slate-400 text-sm">{t('invalidDesc')}</p>
         </div>
       </div>
     )

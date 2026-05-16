@@ -46,18 +46,23 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
     ],
   }
 
+  const faqItems = [
+    { qKey: 'faq1q', aKey: 'faq1a' },
+    { qKey: 'faq2q', aKey: 'faq2a' },
+    { qKey: 'faq3q', aKey: 'faq3a' },
+  ] as const
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <Link href="/projects" className="inline-flex items-center gap-1.5 text-slate-400 hover:text-slate-300 text-sm mb-8">
-            ← Back
+            {t('backToProjects')}
           </Link>
           <h1 className="text-4xl font-bold text-white mb-3">{t('title')}</h1>
           <p className="text-slate-400 text-lg">{t('subtitle')}</p>
         </div>
 
-        {/* チームプラン説明バナー */}
         <div className="max-w-3xl mx-auto mb-8">
           <div className="bg-gradient-to-r from-blue-600/20 to-violet-600/20 border border-blue-500/30 rounded-2xl px-6 py-4 flex items-start gap-3">
             <div className="mt-0.5 w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
@@ -73,7 +78,6 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          {/* ── Free Plan ── */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-white">{freePlan.name}</h2>
@@ -93,16 +97,15 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
               ))}
             </ul>
             <div className="w-full py-3 text-center rounded-xl border border-white/20 text-slate-400 text-sm font-medium">
-              {!isPro ? t('current') : 'Free'}
+              {!isPro ? t('current') : t('free.name')}
             </div>
           </div>
 
-          {/* ── Pro Plan ── */}
           <div className="bg-gradient-to-br from-blue-600 to-violet-600 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent pointer-events-none" />
 
             <div className="absolute top-4 right-4 bg-white/20 text-white text-xs px-2.5 py-1 rounded-full font-medium backdrop-blur-sm">
-              ✦ Popular
+              ✦ {t('popularBadge')}
             </div>
 
             <div className="mb-6 relative">
@@ -111,9 +114,8 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
                 <span className="text-4xl font-bold text-white">{proPlan.price}</span>
                 <span className="text-blue-200 mb-1">{t('monthly')}</span>
               </div>
-              {/* 1人あたり換算 */}
               <p className="text-blue-200 text-xs mt-1 opacity-80">
-                3人チームなら 1人あたり約 $6〜7/月（$19÷3）
+                {t('proThreePersonHint')}
               </p>
             </div>
 
@@ -131,7 +133,6 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
             </ul>
 
             <div className="relative">
-              {/* オーナーのプランでカバーされているケース */}
               {coveredByOwner && !isOwnerPro && (
                 <div className="mb-3 text-center text-sm text-yellow-200 bg-white/10 rounded-xl py-2.5 px-3">
                   {t('coveredByOwner')}
@@ -140,6 +141,7 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
 
               {isOwnerPro ? (
                 <button
+                  type="button"
                   onClick={handleManage}
                   disabled={loading}
                   className="w-full py-3 rounded-xl bg-white text-blue-600 font-bold hover:bg-blue-50 disabled:opacity-50 transition-colors"
@@ -152,6 +154,7 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
                 </div>
               ) : (
                 <button
+                  type="button"
                   onClick={handleUpgrade}
                   disabled={loading}
                   className="w-full py-3 rounded-xl bg-white text-blue-600 font-bold hover:bg-blue-50 disabled:opacity-50 transition-colors shadow-lg"
@@ -163,26 +166,12 @@ export default function PricingClient({ isPro, isOwnerPro, coveredByOwner, isLog
           </div>
         </div>
 
-        {/* FAQ */}
         <div className="max-w-3xl mx-auto mt-12 space-y-4">
-          <h3 className="text-center text-slate-400 text-sm font-semibold uppercase tracking-wider mb-6">よくある質問</h3>
-          {[
-            {
-              q: 'チームメンバーは課金が必要ですか？',
-              a: 'いいえ。プロジェクトのオーナーが Pro に加入すると、そのプロジェクトに招待された全員が追加費用なしで Pro 機能を使えます。',
-            },
-            {
-              q: 'いつでもキャンセルできますか？',
-              a: 'はい。キャンセルはいつでも可能です。解約後も請求期間の終わりまで Pro 機能を使えます。',
-            },
-            {
-              q: '複数プロジェクトのオーナーになれますか？',
-              a: 'はい。Pro プランはプロジェクト数無制限です。あなたが作ったすべてのプロジェクトのメンバーが Pro 機能を使えます。',
-            },
-          ].map((faq, i) => (
+          <h3 className="text-center text-slate-400 text-sm font-semibold uppercase tracking-wider mb-6">{t('faqHeading')}</h3>
+          {faqItems.map((item, i) => (
             <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-5">
-              <p className="text-white font-semibold text-sm mb-2">{faq.q}</p>
-              <p className="text-slate-400 text-sm leading-relaxed">{faq.a}</p>
+              <p className="text-white font-semibold text-sm mb-2">{t(item.qKey)}</p>
+              <p className="text-slate-400 text-sm leading-relaxed">{t(item.aKey)}</p>
             </div>
           ))}
         </div>

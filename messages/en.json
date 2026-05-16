@@ -163,13 +163,24 @@
     "invalidDesc": "This invite link has already been used or revoked.",
     "invited": "You've been invited to a project",
     "invitedEmail": "Invite sent to:",
+    "loggedInLine": "Logged in as {email}",
+    "acceptFailed": "Could not join the project.",
     "loginToJoin": "Log in or sign up to join",
     "loginJoin": "Login to Join",
     "signupJoin": "Sign up to Join",
     "join": "Join Project",
     "joining": "Joining…",
     "loggedInAs": "Logged in as",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "acceptErrors": {
+      "unauthorized": "You need to be signed in.",
+      "invalidInvite": "This invite is invalid or has already been accepted.",
+      "emailMismatch": "Sign in with the email address that received this invite.",
+      "notFound": "Project not found.",
+      "memberLimit": "This project has reached its member limit. The owner needs to upgrade for more seats.",
+      "serverConfig": "Server configuration error. Contact support.",
+      "genericInsert": "Could not add you as a member. Try again."
+    }
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
@@ -191,7 +202,17 @@
     "coveredByOwner": "✦ Covered by your team owner's Pro plan",
     "upgrade": "Upgrade to Pro",
     "manage": "Manage Subscription",
-    "upgrading": "Redirecting…"
+    "upgrading": "Redirecting…",
+    "popularBadge": "Popular",
+    "backToProjects": "← Back to projects",
+    "proThreePersonHint": "For a 3-person team: about $6–7/month per person ($19 ÷ 3).",
+    "faqHeading": "FAQ",
+    "faq1q": "Do team members pay separately?",
+    "faq1a": "No. When the project owner upgrades to Pro, everyone invited to that project gets Pro features at no extra charge.",
+    "faq2q": "Can I cancel anytime?",
+    "faq2a": "Yes — you can cancel anytime. You'll keep access through the end of the billing period.",
+    "faq3q": "Can I own multiple projects?",
+    "faq3a": "Yes. Pro includes unlimited projects, and teams on projects you created get Pro capabilities."
   },
   "limit": {
     "projectLimit": "Free plan is limited to 1 project. Upgrade to Pro for unlimited projects.",
