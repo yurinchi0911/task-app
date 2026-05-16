@@ -5,7 +5,8 @@
     "pricing": "料金プラン",
     "feedback": "フィードバック",
     "teamProBadge": "Pro（チーム）",
-    "teamOwnerProTooltip": "チームオーナーのProプランでカバーされています"
+    "teamOwnerProTooltip": "チームオーナーのProプランでカバーされています",
+    "localeSwitcherJa": "日本語"
   },
   "auth": {
     "login": "ログイン",

@@ -5,7 +5,8 @@
     "pricing": "Pricing",
     "feedback": "Feedback",
     "teamProBadge": "Pro (Team)",
-    "teamOwnerProTooltip": "You have Pro features through your team owner's subscription"
+    "teamOwnerProTooltip": "You have Pro features through your team owner's subscription",
+    "localeSwitcherJa": "Japanese"
   },
   "auth": {
     "login": "Login",

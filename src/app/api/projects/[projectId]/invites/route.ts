@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { FREE_PLAN_LIMITS } from '@/lib/stripe'
 import { isPayingSubscriber } from '@/lib/pro'
@@ -8,6 +9,7 @@ export async function POST(
   req: Request,
   context: { params: Promise<{ projectId: string }> },
 ) {
+  const t = await getTranslations('limit')
   const { projectId } = await context.params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -55,8 +57,7 @@ export async function POST(
     return NextResponse.json(
       {
         error: 'LIMIT_MEMBERS',
-        message:
-          'Freeプランではメンバーは最大3人までです（保留中の招待も枠を使います）。オーナーがProになると無制限になります。',
+        message: t('memberLimit'),
       },
       { status: 403 },
     )

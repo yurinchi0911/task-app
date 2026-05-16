@@ -2,9 +2,11 @@
 
 import { setUserLocale } from '@/app/actions/locale'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 
 export default function LocaleSwitcher({ current }: { current: string }) {
+  const t = useTranslations('nav')
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -34,7 +36,7 @@ export default function LocaleSwitcher({ current }: { current: string }) {
           current === 'ja' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
-        日本語
+        {t('localeSwitcherJa')}
       </button>
     </div>
   )

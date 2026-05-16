@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
+import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { FREE_PLAN_LIMITS } from '@/lib/stripe'
 import { isPayingSubscriber } from '@/lib/pro'
 
 export async function POST(req: Request) {
+  const t = await getTranslations('limit')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
@@ -21,7 +23,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: 'LIMIT_PROJECTS',
-          message: 'Freeプランでは自分がオーナーのプロジェクトは1つまでです。Proで無制限になります。',
+          message: t('projectLimit'),
         },
         { status: 403 },
       )
