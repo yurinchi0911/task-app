@@ -18,10 +18,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: t('api.proRequired') }, { status: 403 })
   }
 
-  const body = await req.json()
-  const { category, content, rating } = body
+  let body: { category?: unknown; content?: unknown; rating?: unknown }
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
 
-  if (!content?.trim()) {
+  const category = typeof body.category === 'string' ? body.category : undefined
+  const content = typeof body.content === 'string' ? body.content : ''
+  const rating =
+    typeof body.rating === 'number' && body.rating >= 1 && body.rating <= 5 ? body.rating : undefined
+
+  if (!content.trim()) {
     return NextResponse.json({ error: t('api.contentRequired') }, { status: 400 })
   }
 
@@ -31,13 +40,14 @@ export async function POST(req: Request) {
       user_id: user.id,
       category: category || 'general',
       content: content.trim(),
-      rating: rating || null,
+      rating: rating ?? null,
     })
     .select('*')
     .single()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('[POST /api/feedback]', error.code, error.message)
+    return NextResponse.json({ error: 'Save failed' }, { status: 500 })
   }
 
   return NextResponse.json(data)

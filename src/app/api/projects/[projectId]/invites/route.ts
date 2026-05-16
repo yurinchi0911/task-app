@@ -89,7 +89,8 @@ export async function POST(
     .single()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+    console.error('[POST /api/projects/*/invites]', error.code, error.message)
+    return NextResponse.json({ error: 'Create failed' }, { status: 400 })
   }
 
   return NextResponse.json({ invite: data })
