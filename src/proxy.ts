@@ -30,12 +30,26 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // 未認証ユーザーをログインへリダイレクト
-  if (!user && !pathname.startsWith('/login') && !pathname.startsWith('/signup') && !pathname.startsWith('/invite')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  // API と /auth/* はセッション同期のみ（Webhook・OAuth などをログインへ飛ばさない）
+  if (pathname.startsWith('/api') || pathname.startsWith('/auth')) {
+    return supabaseResponse
   }
 
-  // 認証済みユーザーをログイン・サインアップへ来たときは一覧へ（redirect があれば優先）
+  // 未認証: 公開パス以外はログインへ
+  if (!user) {
+    const allowAnon =
+      pathname === '/' ||
+      pathname.startsWith('/login') ||
+      pathname.startsWith('/signup') ||
+      pathname.startsWith('/invite') ||
+      pathname.startsWith('/pricing')
+
+    if (!allowAnon) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
+  // 認証済み: ログイン/新規登録は redirect 優先で退避
   if (user && (pathname === '/login' || pathname === '/signup')) {
     const dest = getSafeRedirectPath(request.nextUrl.searchParams.get('redirect'))
     return NextResponse.redirect(new URL(dest ?? '/projects', request.url))

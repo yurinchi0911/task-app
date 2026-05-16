@@ -1,5 +1,6 @@
 import { getRequestConfig } from 'next-intl/server'
 import { cookies, headers } from 'next/headers'
+import { negotiateLocaleFromAcceptLanguage } from '@/lib/locale-from-accept-language'
 
 export const locales = ['en', 'ja'] as const
 export type Locale = (typeof locales)[number]
@@ -16,8 +17,8 @@ export default getRequestConfig(async () => {
 
   if (cookieLang && locales.includes(cookieLang as Locale)) {
     locale = cookieLang as Locale
-  } else if (acceptLang.includes('ja')) {
-    locale = 'ja'
+  } else {
+    locale = negotiateLocaleFromAcceptLanguage(acceptLang, locales, defaultLocale)
   }
 
   return {
