@@ -4,6 +4,59 @@
 
 ---
 
+## 外部リンク・プロフィール（PH / GitHub / SNS）
+
+**随時ここを更新し、PH の Additional links と揃える。**
+
+**公開の考え方：** **GitHub（repo）や README に貼るのは GitHub と製品 URL が中心**にすると、個人の紐づけが緩い。**LinkedIn は Product Hunt の Maker プロフィール「Additional links」用**など、必要な場所だけで使う（リポジトリの README に必須ではない）。
+
+| 用途 | URL |
+|------|-----|
+| 本番 | https://task-app-xi-two.vercel.app |
+| Pricing | https://task-app-xi-two.vercel.app/pricing |
+| **GitHub（リポジトリ）** | `https://github.com/<YOUR_USER>/<REPO>` ← public README / PH に載せるならこちら優先 |
+| **LinkedIn（プロフィール）** | `https://www.linkedin.com/in/<YOUR_PROFILE>/` — **PH プロフィール向け**（repo に書かなくても可） |
+| X（任意） | `https://x.com/yurinchi0911` |
+| サポート | yurinchi.coding55@gmail.com |
+| Privacy | Notion 公開 or `/privacy` — 用意後に URL を追記 |
+| **PH ローンチページ** | 予約済みならダッシュボードから URL をコピーして **ここに貼る**（公開後のシェア用） |
+
+**PH の Additional links の並び例：** GitHub → X →（あれば）本番 URL。LinkedIn は PH のプロフィール設定側で足す。
+
+### LinkedIn ローンチ投稿ドラフト（英語・コピペ用）
+
+**投票は依頼しない**（PH のガイドラインと整合）。**リンクは PH のローンチ URL**（公開後に入手）に差し替え。
+
+**短め**
+
+```text
+Today TaskFlow is on Product Hunt — a lightweight task manager for small dev teams (2–8 people).
+
+Real-time Kanban, list, and tree views. One project owner’s Pro subscription unlocks the whole team on that project (no per-seat pricing for teammates).
+
+Free tier: 1 project, up to 3 members. Stack: Next.js, Supabase, Stripe.
+
+If you run a tiny crew and want something deliberately simple, I’d love feedback on the launch page:
+
+<Product Hunt launch URL here>
+```
+
+**やや長め（任意）**
+
+```text
+Shipping TaskFlow in public today — it’s on Product Hunt.
+
+I kept wanting a tool that stayed this simple: realtime boards, clear structure (Kanban / list / tree), and invites that don’t turn billing into a spreadsheet. Small teams shouldn’t need enterprise PM weight — or per-seat math when one person holds the budget.
+
+TaskFlow: one owner can upgrade to Pro once; every invited member on that project gets Pro features too.
+
+Honest feedback welcome on the PH thread — what would it take for your 2–8 person team to rely on this day to day?
+
+<Product Hunt launch URL here>
+```
+
+---
+
 ## PH 基本フィールド
 
 ### Name

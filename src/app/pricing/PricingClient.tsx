@@ -69,10 +69,17 @@ function PricingContent({ isPro, isOwnerPro, coveredByOwner, isLoggedIn }: Props
     ],
   }
 
+  const supportEmail =
+    typeof process.env.NEXT_PUBLIC_SUPPORT_EMAIL === 'string'
+      ? process.env.NEXT_PUBLIC_SUPPORT_EMAIL.trim()
+      : ''
+
   const faqItems = [
     { qKey: 'faq1q', aKey: 'faq1a' },
     { qKey: 'faq2q', aKey: 'faq2a' },
     { qKey: 'faq3q', aKey: 'faq3a' },
+    { qKey: 'faq4q', aKey: 'faq4a' },
+    { qKey: 'faq5q', aKey: 'faq5a', showSupportEmail: true as const },
   ] as const
 
   return (
@@ -201,6 +208,14 @@ function PricingContent({ isPro, isOwnerPro, coveredByOwner, isLoggedIn }: Props
             <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-5">
               <p className="text-white font-semibold text-sm mb-2">{t(item.qKey)}</p>
               <p className="text-slate-400 text-sm leading-relaxed">{t(item.aKey)}</p>
+              {'showSupportEmail' in item && item.showSupportEmail && supportEmail.includes('@') ? (
+                <p className="mt-3 text-sm">
+                  <span className="text-slate-500">{t('faq5contactIntro')} </span>
+                  <a href={`mailto:${supportEmail}`} className="text-blue-300 hover:text-blue-200 underline">
+                    {supportEmail}
+                  </a>
+                </p>
+              ) : null}
             </div>
           ))}
         </div>

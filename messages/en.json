@@ -219,6 +219,11 @@
     "faq2a": "Yes — you can cancel anytime. You'll keep access through the end of the billing period.",
     "faq3q": "Can I own multiple projects?",
     "faq3a": "Yes. Pro includes unlimited projects, and teams on projects you created get Pro capabilities.",
+    "faq4q": "How do I cancel billing / my subscription?",
+    "faq4a": "If you're on Pro and logged in, use \"Manage Subscription\" on this page to open Stripe's Customer Portal. There you can cancel or update your payment method. There is no Stripe payment if you're only on Free.",
+    "faq5q": "How do I delete my account?",
+    "faq5a": "To delete your account and related data, please email us. Sending from the email you use to log in helps us verify it's you.",
+    "faq5contactIntro": "Contact:",
     "reasonBannerFeedback": "You've been redirected here — the Feedback tool is part of TaskFlow Pro. Upgrade below to use it.",
     "reasonBannerProjectLimit": "You've been redirected because the Free plan limits how many owned projects you can create."
   },
