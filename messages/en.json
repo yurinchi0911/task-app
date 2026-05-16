@@ -21,7 +21,10 @@
     "passwordLength": "Password must be at least 8 characters",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
-    "tagline": "Manage your team's tasks in real time"
+    "tagline": "Manage your team's tasks in real time",
+    "signupSubtitle": "Create an account to get started",
+    "passwordSignupLabel": "Password (minimum 8 characters)",
+    "displayNamePlaceholder": "Jane Doe"
   },
   "projects": {
     "title": "Projects",

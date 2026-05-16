@@ -21,7 +21,10 @@
     "passwordLength": "パスワードは8文字以上にしてください",
     "noAccount": "アカウントがない方は",
     "hasAccount": "すでにアカウントがある方は",
-    "tagline": "チームのタスクをリアルタイムで管理"
+    "tagline": "チームのタスクをリアルタイムで管理",
+    "signupSubtitle": "アカウントを作成して始めましょう",
+    "passwordSignupLabel": "パスワード（8文字以上）",
+    "displayNamePlaceholder": "山田 太郎"
   },
   "projects": {
     "title": "プロジェクト",

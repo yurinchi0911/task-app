@@ -1,11 +1,13 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
+  const t = useTranslations('auth')
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -17,7 +19,7 @@ export default function SignupPage() {
     e.preventDefault()
     setError('')
     if (password.length < 8) {
-      setError('パスワードは8文字以上にしてください')
+      setError(t('passwordLength'))
       return
     }
     setLoading(true)
@@ -46,23 +48,23 @@ export default function SignupPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-white">TaskFlow</h1>
-          <p className="text-slate-400 mt-1 text-sm">アカウントを作成して始めましょう</p>
+          <p className="text-slate-400 mt-1 text-sm">{t('signupSubtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">表示名</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">{t('displayName')}</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               required
-              placeholder="山田 太郎"
+              placeholder={t('displayNamePlaceholder')}
               className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">メールアドレス</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">{t('email')}</label>
             <input
               type="email"
               value={email}
@@ -73,7 +75,7 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">パスワード（8文字以上）</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">{t('passwordSignupLabel')}</label>
             <input
               type="password"
               value={password}
@@ -96,14 +98,14 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
           >
-            {loading ? '登録中…' : 'アカウントを作成'}
+            {loading ? t('signingUp') : t('signupCta')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-400">
-          すでにアカウントがある方は{' '}
+          {t('hasAccount')}{' '}
           <Link href="/login" className="text-blue-400 hover:text-blue-300 font-medium">
-            ログイン
+            {t('login')}
           </Link>
         </p>
       </div>

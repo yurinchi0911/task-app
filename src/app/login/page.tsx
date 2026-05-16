@@ -1,11 +1,13 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
+  const t = useTranslations('auth')
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,7 +21,7 @@ export default function LoginPage() {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('メールアドレスまたはパスワードが間違っています')
+      setError(t('loginError'))
       setLoading(false)
       return
     }
@@ -37,12 +39,12 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-white">TaskFlow</h1>
-          <p className="text-slate-400 mt-1 text-sm">チームのタスクをリアルタイムで管理</p>
+          <p className="text-slate-400 mt-1 text-sm">{t('tagline')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">メールアドレス</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">{t('email')}</label>
             <input
               type="email"
               value={email}
@@ -53,7 +55,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">パスワード</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">{t('password')}</label>
             <input
               type="password"
               value={password}
@@ -75,14 +77,14 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
           >
-            {loading ? 'ログイン中…' : 'ログイン'}
+            {loading ? t('loggingIn') : t('loginCta')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-400">
-          アカウントがない方は{' '}
+          {t('noAccount')}{' '}
           <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium">
-            新規登録
+            {t('signup')}
           </Link>
         </p>
       </div>
