@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getStripe } from '@/lib/stripe'
@@ -22,9 +23,13 @@ export async function POST() {
   }
 
   const stripe = getStripe()
+  const jar = await cookies()
+  const uiLocale = jar.get('locale')?.value === 'ja' ? 'ja' : 'en'
+
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
     return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/projects`,
+    locale: uiLocale,
   })
 
   return NextResponse.json({ url: session.url })

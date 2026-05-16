@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getStripe, STRIPE_PRO_PRICE_ID } from '@/lib/stripe'
@@ -31,6 +32,9 @@ export async function POST() {
       .eq('id', user.id)
   }
 
+  const jar = await cookies()
+  const uiLocale = jar.get('locale')?.value === 'ja' ? 'ja' : 'en'
+
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
@@ -38,6 +42,7 @@ export async function POST() {
     line_items: [{ price: STRIPE_PRO_PRICE_ID, quantity: 1 }],
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/projects?upgraded=1`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
+    locale: uiLocale,
   })
 
   return NextResponse.json({ url: session.url })
