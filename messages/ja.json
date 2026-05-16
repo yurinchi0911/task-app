@@ -1,0 +1,134 @@
+{
+  "nav": {
+    "brand": "TaskFlow",
+    "logout": "ログアウト",
+    "pricing": "料金プラン"
+  },
+  "auth": {
+    "login": "ログイン",
+    "signup": "新規登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "displayName": "表示名",
+    "loginCta": "ログイン",
+    "signupCta": "アカウントを作成",
+    "loggingIn": "ログイン中…",
+    "signingUp": "登録中…",
+    "loginError": "メールアドレスまたはパスワードが間違っています",
+    "passwordLength": "パスワードは8文字以上にしてください",
+    "noAccount": "アカウントがない方は",
+    "hasAccount": "すでにアカウントがある方は",
+    "tagline": "チームのタスクをリアルタイムで管理"
+  },
+  "projects": {
+    "title": "プロジェクト",
+    "subtitle": "あなたが参加しているプロジェクト一覧",
+    "new": "新規プロジェクト",
+    "empty": "まだプロジェクトがありません",
+    "emptyDesc": "新しいプロジェクトを作成するか、招待を受けましょう",
+    "create": "プロジェクトを作成",
+    "open": "開く →",
+    "name": "プロジェクト名",
+    "namePlaceholder": "例: ウェブサイトリニューアル",
+    "color": "カラー",
+    "preview": "プレビュー",
+    "creating": "作成中…",
+    "createError": "プロジェクトの作成に失敗しました: ",
+    "back": "← プロジェクト一覧に戻る"
+  },
+  "tasks": {
+    "add": "タスクを追加",
+    "count": "{count} タスク",
+    "kanban": "カンバン",
+    "list": "リスト",
+    "empty": "タスクがありません。追加してみましょう！",
+    "title": "タスク名",
+    "titlePlaceholder": "タスクのタイトルを入力",
+    "priority": "優先度",
+    "status": "ステータス",
+    "assignee": "担当者",
+    "unassigned": "未割り当て",
+    "dueDate": "期限",
+    "notes": "メモ",
+    "notesPlaceholder": "タスクのメモや詳細を入力（任意）",
+    "addTask": "タスクを追加",
+    "editTask": "タスクを編集",
+    "save": "保存",
+    "update": "更新する",
+    "saving": "保存中…",
+    "cancel": "キャンセル",
+    "addColumn": "+ 追加",
+    "nextStatus": {
+      "todo": "→ 進行中へ",
+      "in_progress": "→ 完了へ",
+      "done": "✓ 完了"
+    },
+    "statusLabel": {
+      "todo": "未着手",
+      "in_progress": "進行中",
+      "done": "完了"
+    },
+    "priorityLabel": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "緊急"
+    },
+    "taskAddError": "タスク追加エラー: "
+  },
+  "members": {
+    "title": "メンバー管理",
+    "invite": "メンバーを招待",
+    "inviteDesc": "メールアドレスを入力すると招待リンクが生成されます",
+    "inviteEmail": "招待するメールアドレス",
+    "generateLink": "招待リンクを生成",
+    "processing": "処理中…",
+    "pending": "保留中の招待",
+    "revoke": "取り消す",
+    "inviteSuccess": "招待リンクを生成しました！",
+    "copyLink": "コピーする",
+    "inviteError": "招待の作成に失敗しました: ",
+    "roles": {
+      "owner": "オーナー",
+      "admin": "管理者",
+      "member": "メンバー"
+    }
+  },
+  "invite": {
+    "invalid": "招待リンクが無効です",
+    "invalidDesc": "すでに使用済みか、取り消された招待リンクです",
+    "invited": "プロジェクトへ招待されました",
+    "invitedEmail": "招待メール:",
+    "loginToJoin": "参加するにはログインまたはアカウント作成が必要です",
+    "loginJoin": "ログインして参加",
+    "signupJoin": "新規登録して参加",
+    "join": "プロジェクトに参加する",
+    "joining": "参加中…",
+    "loggedInAs": "としてログイン中",
+    "cancel": "キャンセル"
+  },
+  "pricing": {
+    "title": "シンプルな料金プラン",
+    "subtitle": "まず無料で始めて、チームが成長したらアップグレード",
+    "monthly": " / 月",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "features": ["プロジェクト1つ", "メンバー最大3人", "タスク無制限", "カンバン＆リスト表示"]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$9",
+      "features": ["プロジェクト無制限", "メンバー無制限", "タスク無制限", "カンバン＆リスト表示", "優先サポート"]
+    },
+    "current": "現在のプラン",
+    "upgrade": "Proにアップグレード",
+    "manage": "サブスクリプション管理",
+    "upgrading": "リダイレクト中…"
+  },
+  "limit": {
+    "projectLimit": "Freeプランはプロジェクト1つまでです。無制限にするにはProにアップグレードしてください。",
+    "memberLimit": "Freeプランはメンバー3人までです。無制限にするにはProにアップグレードしてください。",
+    "upgrade": "Proにアップグレード"
+  }
+}

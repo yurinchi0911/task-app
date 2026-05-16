@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import TaskBoard from '@/components/tasks/TaskBoard'
+import StandupSection from '@/components/standup/StandupSection'
 import type { Project, Task, ProjectMember } from '@/lib/types'
 
 interface Props {
@@ -70,12 +71,19 @@ export default async function ProjectPage({ params }: Props) {
         </Link>
       </div>
 
-      <TaskBoard
+      <StandupSection
         projectId={projectId}
-        initialTasks={tasks ?? []}
-        members={members ?? []}
         currentUserId={user.id}
       />
+
+      <div className="mt-6">
+        <TaskBoard
+          projectId={projectId}
+          initialTasks={tasks ?? []}
+          members={members ?? []}
+          currentUserId={user.id}
+        />
+      </div>
     </div>
   )
 }

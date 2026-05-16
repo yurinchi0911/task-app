@@ -10,23 +10,43 @@ interface FormValues {
   status: TaskStatus
   priority: TaskPriority
   notes: string | null
+  parent_task_id: string | null
 }
 
 interface Props {
   task: Task | null
   members: ProjectMember[]
+  allTasks?: Task[]
+  defaultParentId?: string | null
   onSave: (values: FormValues) => Promise<void>
   onClose: () => void
 }
 
-export default function TaskFormModal({ task, members, onSave, onClose }: Props) {
+export default function TaskFormModal({ task, members, allTasks = [], defaultParentId = null, onSave, onClose }: Props) {
   const [title, setTitle] = useState(task?.title ?? '')
   const [assigneeId, setAssigneeId] = useState<string>(task?.assignee_id ?? '')
   const [dueDate, setDueDate] = useState<string>(task?.due_date ?? '')
   const [status, setStatus] = useState<TaskStatus>(task?.status ?? 'todo')
   const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? 'medium')
   const [notes, setNotes] = useState<string>(task?.notes ?? '')
+  const [parentTaskId, setParentTaskId] = useState<string>(task?.parent_task_id ?? defaultParentId ?? '')
   const [loading, setLoading] = useState(false)
+
+  // 自分自身と子孫タスクを親候補から除外
+  const getDescendantIds = (taskId: string): Set<string> => {
+    const ids = new Set<string>([taskId])
+    const findChildren = (id: string) => {
+      allTasks.filter(t => t.parent_task_id === id).forEach(child => {
+        ids.add(child.id)
+        findChildren(child.id)
+      })
+    }
+    findChildren(taskId)
+    return ids
+  }
+
+  const excludedIds = task ? getDescendantIds(task.id) : new Set<string>()
+  const parentCandidates = allTasks.filter(t => !excludedIds.has(t.id))
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -39,6 +59,7 @@ export default function TaskFormModal({ task, members, onSave, onClose }: Props)
       status,
       priority,
       notes: notes.trim() || null,
+      parent_task_id: parentTaskId || null,
     })
     setLoading(false)
   }
@@ -46,7 +67,7 @@ export default function TaskFormModal({ task, members, onSave, onClose }: Props)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 z-10">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 z-10 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-slate-900">
             {task ? 'タスクを編集' : 'タスクを追加'}
@@ -124,6 +145,27 @@ export default function TaskFormModal({ task, members, onSave, onClose }: Props)
               className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
             />
           </div>
+
+          {parentCandidates.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                親タスク
+                <span className="ml-1 text-xs text-slate-400 font-normal">（サブタスクとして追加）</span>
+              </label>
+              <select
+                value={parentTaskId}
+                onChange={e => setParentTaskId(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+              >
+                <option value="">なし（ルートタスク）</option>
+                {parentCandidates.map(t => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">メモ</label>

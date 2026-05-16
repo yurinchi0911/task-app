@@ -5,12 +5,23 @@ import { createClient } from '@/lib/supabase/client'
 import type { Task, TaskStatus, TaskPriority, ProjectMember } from '@/lib/types'
 import TaskCard from './TaskCard'
 import TaskFormModal from './TaskFormModal'
+import TaskTreeView from './TaskTreeView'
 
 const STATUS_COLUMNS: { key: TaskStatus; label: string; color: string }[] = [
   { key: 'todo', label: '未着手', color: 'bg-slate-100' },
   { key: 'in_progress', label: '進行中', color: 'bg-blue-50' },
   { key: 'done', label: '完了', color: 'bg-emerald-50' },
 ]
+
+interface FormValues {
+  title: string
+  assignee_id: string | null
+  due_date: string | null
+  status: TaskStatus
+  priority: TaskPriority
+  notes: string | null
+  parent_task_id: string | null
+}
 
 interface Props {
   projectId: string
@@ -21,10 +32,13 @@ interface Props {
 
 export default function TaskBoard({ projectId, initialTasks, members }: Props) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
-  const [view, setView] = useState<'kanban' | 'list'>('kanban')
+  const [view, setView] = useState<'kanban' | 'list' | 'tree'>('kanban')
+  const [hideDone, setHideDone] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const supabase = createClient()
+
+  const visibleTasks = hideDone ? tasks.filter(t => t.status !== 'done') : tasks
 
   // Realtimeサブスクリプション
   useEffect(() => {
@@ -60,18 +74,11 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
     return () => { supabase.removeChannel(channel) }
   }, [projectId, supabase])
 
-  const handleSaveTask = useCallback(async (values: {
-    title: string
-    assignee_id: string | null
-    due_date: string | null
-    status: TaskStatus
-    priority: TaskPriority
-    notes: string | null
-  }) => {
+  const handleSaveTask = useCallback(async (values: FormValues) => {
     if (editingTask) {
       const { data } = await supabase
         .from('tasks')
-        .update(values as Record<string, unknown>)
+        .update(values as unknown as Record<string, unknown>)
         .eq('id', editingTask.id)
         .select('*')
         .single() as { data: Task | null }
@@ -132,26 +139,52 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
             </svg>
             リスト
           </button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-500">{tasks.length} タスク</span>
           <button
-            onClick={openCreate}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
+            onClick={() => setView('tree')}
+            className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 transition-colors ${
+              view === 'tree' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+            }`}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h3m0 0v5m0-5h3m6-3v3m0 0h3M7 11v5m0 0h3m-3 0v2" />
             </svg>
-            タスクを追加
+            ツリー
           </button>
         </div>
+        {view !== 'tree' && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setHideDone(v => !v)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                hideDone
+                  ? 'bg-slate-800 text-white border-slate-800'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={hideDone ? "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" : "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"} />
+              </svg>
+              {hideDone ? '完了を表示' : '完了を非表示'}
+            </button>
+            <span className="text-sm text-slate-500">{visibleTasks.length} タスク</span>
+            <button
+              onClick={openCreate}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              タスクを追加
+            </button>
+          </div>
+        )}
       </div>
 
       {/* カンバンビュー */}
       {view === 'kanban' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {STATUS_COLUMNS.map(col => {
-            const colTasks = tasks.filter(t => t.status === col.key)
+            const colTasks = visibleTasks.filter(t => t.status === col.key)
             return (
               <div key={col.key} className={`rounded-xl p-3 ${col.color} min-h-[200px]`}>
                 <div className="flex items-center justify-between mb-3">
@@ -189,7 +222,7 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
       {/* リストビュー */}
       {view === 'list' && (
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-          {tasks.length === 0 ? (
+          {visibleTasks.length === 0 ? (
             <div className="text-center py-16 text-slate-400">
               <p className="text-sm">タスクがありません。追加してみましょう！</p>
             </div>
@@ -206,7 +239,7 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {tasks.map(task => (
+                {visibleTasks.map(task => (
                   <ListRow
                     key={task.id}
                     task={task}
@@ -221,10 +254,21 @@ export default function TaskBoard({ projectId, initialTasks, members }: Props) {
         </div>
       )}
 
-      {showModal && (
+      {/* ツリービュー */}
+      {view === 'tree' && (
+        <TaskTreeView
+          projectId={projectId}
+          tasks={tasks}
+          members={members}
+          onTasksChange={setTasks}
+        />
+      )}
+
+      {showModal && view !== 'tree' && (
         <TaskFormModal
           task={editingTask}
           members={members}
+          allTasks={tasks}
           onSave={handleSaveTask}
           onClose={() => { setShowModal(false); setEditingTask(null) }}
         />
@@ -261,7 +305,16 @@ function ListRow({ task, onEdit, onDelete, onStatusChange }: {
 
   return (
     <tr className="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
-      <td className="px-4 py-3 text-slate-900 font-medium">{task.title}</td>
+      <td className="px-4 py-3 text-slate-900 font-medium">
+        <div className="flex items-center gap-2">
+          {task.parent_task_id && (
+            <svg className="w-3 h-3 text-slate-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </svg>
+          )}
+          {task.title}
+        </div>
+      </td>
       <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">
         {task.profiles?.name || task.profiles?.email || '—'}
       </td>

@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import LogoutButton from '@/components/ui/LogoutButton'
+import LocaleSwitcher from '@/components/ui/LocaleSwitcher'
+import { getLocale, getTranslations } from 'next-intl/server'
 import type { Profile } from '@/lib/types'
 
 export default async function ProjectsLayout({ children }: { children: React.ReactNode }) {
@@ -11,9 +13,13 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('name, email')
+    .select('name, email, subscription_status')
     .eq('id', user.id)
-    .single() as { data: Pick<Profile, 'name' | 'email'> | null }
+    .single() as { data: (Pick<Profile, 'name' | 'email'> & { subscription_status?: string }) | null }
+
+  const locale = await getLocale()
+  const t = await getTranslations('nav')
+  const isPro = profile?.subscription_status === 'pro'
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -25,13 +31,38 @@ export default async function ProjectsLayout({ children }: { children: React.Rea
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            TaskFlow
+            {t('brand')}
           </Link>
           <div className="flex items-center gap-3">
+            {isPro && (
+              <Link
+                href="/feedback"
+                className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                フィードバック
+              </Link>
+            )}
+            {!isPro && (
+              <Link
+                href="/pricing"
+                className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-white font-medium hover:opacity-90 transition-opacity"
+              >
+                ⚡ Upgrade to Pro
+              </Link>
+            )}
+            {isPro && (
+              <span className="hidden sm:flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 text-white font-medium">
+                ✦ Pro
+              </span>
+            )}
+            <LocaleSwitcher current={locale} />
             <span className="text-sm text-slate-600 hidden sm:block">
               {profile?.name || profile?.email || user.email}
             </span>
-            <LogoutButton />
+            <LogoutButton label={t('logout')} />
           </div>
         </div>
       </header>

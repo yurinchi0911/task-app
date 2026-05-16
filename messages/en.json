@@ -1,0 +1,134 @@
+{
+  "nav": {
+    "brand": "TaskFlow",
+    "logout": "Logout",
+    "pricing": "Pricing"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "displayName": "Display Name",
+    "loginCta": "Sign in",
+    "signupCta": "Create Account",
+    "loggingIn": "Signing in…",
+    "signingUp": "Creating account…",
+    "loginError": "Invalid email or password",
+    "passwordLength": "Password must be at least 8 characters",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "tagline": "Manage your team's tasks in real time"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Projects you're a member of",
+    "new": "New Project",
+    "empty": "No projects yet",
+    "emptyDesc": "Create a new project or wait for an invitation",
+    "create": "Create Project",
+    "open": "Open →",
+    "name": "Project Name",
+    "namePlaceholder": "e.g. Website Redesign",
+    "color": "Color",
+    "preview": "Preview",
+    "creating": "Creating…",
+    "createError": "Failed to create project: ",
+    "back": "← Back to projects"
+  },
+  "tasks": {
+    "add": "Add Task",
+    "count": "{count} tasks",
+    "kanban": "Kanban",
+    "list": "List",
+    "empty": "No tasks yet. Add one!",
+    "title": "Task Name",
+    "titlePlaceholder": "Enter task title",
+    "priority": "Priority",
+    "status": "Status",
+    "assignee": "Assignee",
+    "unassigned": "Unassigned",
+    "dueDate": "Due Date",
+    "notes": "Notes",
+    "notesPlaceholder": "Add notes or details (optional)",
+    "addTask": "Add Task",
+    "editTask": "Edit Task",
+    "save": "Save",
+    "update": "Update",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "addColumn": "+ Add",
+    "nextStatus": {
+      "todo": "→ In Progress",
+      "in_progress": "→ Done",
+      "done": "✓ Done"
+    },
+    "statusLabel": {
+      "todo": "To Do",
+      "in_progress": "In Progress",
+      "done": "Done"
+    },
+    "priorityLabel": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "taskAddError": "Failed to add task: "
+  },
+  "members": {
+    "title": "Team Members",
+    "invite": "Invite Member",
+    "inviteDesc": "Enter an email to generate an invite link",
+    "inviteEmail": "Email to invite",
+    "generateLink": "Generate Invite Link",
+    "processing": "Processing…",
+    "pending": "Pending Invites",
+    "revoke": "Revoke",
+    "inviteSuccess": "Invite link generated!",
+    "copyLink": "Copy link",
+    "inviteError": "Failed to create invite: ",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
+    }
+  },
+  "invite": {
+    "invalid": "Invalid invite link",
+    "invalidDesc": "This invite link has already been used or revoked.",
+    "invited": "You've been invited to a project",
+    "invitedEmail": "Invite sent to:",
+    "loginToJoin": "Log in or sign up to join",
+    "loginJoin": "Login to Join",
+    "signupJoin": "Sign up to Join",
+    "join": "Join Project",
+    "joining": "Joining…",
+    "loggedInAs": "Logged in as",
+    "cancel": "Cancel"
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Start free. Upgrade when your team grows.",
+    "monthly": "/ month",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "features": ["1 project", "Up to 3 members", "Unlimited tasks", "Kanban & list view"]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$9",
+      "features": ["Unlimited projects", "Unlimited members", "Unlimited tasks", "Kanban & list view", "Priority support"]
+    },
+    "current": "Current Plan",
+    "upgrade": "Upgrade to Pro",
+    "manage": "Manage Subscription",
+    "upgrading": "Redirecting…"
+  },
+  "limit": {
+    "projectLimit": "Free plan is limited to 1 project. Upgrade to Pro for unlimited projects.",
+    "memberLimit": "Free plan is limited to 3 members. Upgrade to Pro for unlimited members.",
+    "upgrade": "Upgrade to Pro"
+  }
+}
